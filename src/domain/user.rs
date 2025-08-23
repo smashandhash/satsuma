@@ -10,4 +10,8 @@ impl User {
             name: name.to_string(),
         }
     }
+
+    pub fn change_name(&mut self, new_name: &str) {
+        self.name = new_name.to_string();
+    }
 }
