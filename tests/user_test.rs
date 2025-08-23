@@ -15,4 +15,11 @@ mod tests {
         user.change_name("Alicia");
         assert_eq!(user.name, "Alicia");
     }
+
+    #[test]
+    fn changing_name_does_not_affect_id() {
+        let mut user = User::new(1, "Alice");
+        user.change_name("Alicia");
+        assert_eq!(user.id, 1);
+    }
 }
