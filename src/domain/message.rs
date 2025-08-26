@@ -18,4 +18,8 @@ impl Message {
             timestamp: Utc::now(),
         }
     }
+
+    pub fn edit_content(&mut self, new_content: &str) {
+        self.content = new_content.to_string();
+    }
 }
