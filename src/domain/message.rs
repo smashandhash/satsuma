@@ -26,4 +26,8 @@ impl Message {
     pub fn is_empty(&self) -> bool {
         self.content.trim().is_empty()
     }
+
+    pub fn is_to_self(&self) -> bool {
+        self.sender_id == self.recipient_id
+    }
 }

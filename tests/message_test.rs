@@ -27,4 +27,16 @@ mod tests {
             assert_eq!(message.is_empty(), expected);
         }
     }
+
+    #[test]
+    fn message_can_check_if_to_self() {
+        let cases = vec! [
+            (Message::new(4, 101, 101, "Reminder"), true),
+            (Message::new(4, 101, 202, "Hello"), false),
+        ];
+
+        for (message, expected) in cases {
+            assert_eq!(message.is_to_self(), expected);
+        }
+    }
 }
