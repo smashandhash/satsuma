@@ -22,4 +22,8 @@ impl Message {
     pub fn edit_content(&mut self, new_content: &str) {
         self.content = new_content.to_string();
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.content.trim().is_empty()
+    }
 }
