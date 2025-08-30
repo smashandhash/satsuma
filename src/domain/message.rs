@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 
+#[derive(Debug, Clone)]
 pub struct Message {
     pub id: u64,
     pub sender_id: u64,
