@@ -34,4 +34,12 @@ mod tests {
         assert_eq!(conversation.messages[0].content, "First");
         assert_eq!(conversation.messages[1].content, "Second");
     }
+
+    #[test]
+    fn conversation_has_correct_participants() {
+        let conversation = Conversation::new(1, vec![101, 202]);
+        
+        assert!(conversation.participant_ids.contains(&101));
+        assert!(conversation.participant_ids.contains(&202));
+    }
 }
