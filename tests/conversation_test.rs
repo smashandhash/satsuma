@@ -42,4 +42,13 @@ mod tests {
         assert!(conversation.participant_ids.contains(&101));
         assert!(conversation.participant_ids.contains(&202));
     }
+
+    #[test]
+    fn reject_message_from_non_participant_conversation() {
+        let mut conversation = Conversation::new(1, vec![101, 202]);
+        let outsider_message = Message::new(1, 303, 101, "Hi, can I join?");
+
+        assert!(!conversation.add_message(outsider_message));
+        assert!(conversation.messages.is_empty());
+    }
 }

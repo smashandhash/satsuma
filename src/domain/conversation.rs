@@ -19,7 +19,15 @@ impl Conversation {
         }
     }
 
-    pub fn add_message(&mut self, message: Message) {
-        self.messages.push(message);
+    pub fn add_message(&mut self, message: Message) -> bool {
+        let valid_sender = self.participant_ids.contains(&message.sender_id);
+        let valid_recipient = self.participant_ids.contains(&message.recipient_id);
+        
+        if valid_sender && valid_recipient {
+            self.messages.push(message);
+            true
+        } else {
+            false
+        }
     }
 }
