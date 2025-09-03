@@ -13,4 +13,13 @@ mod tests {
         assert_eq!(user.name, "Alice");
         assert!(user.id > 0);
     }
+
+    #[test]
+    fn register_multiple_users_gets_unique_ids() {
+        let mut use_case = RegisterUserUseCase::new();
+        let alice = use_case.execute("Alice".to_string());
+        let bob = use_case.execute("Bob".to_string());
+
+        assert_ne!(alice.id, bob.id);
+    }
 }
