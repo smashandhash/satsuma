@@ -8,8 +8,10 @@ mod tests {
     #[test]
     fn register_user_creates_new_user() {
         let mut use_case = RegisterUserUseCase::new();
-        let user = use_case.execute("Alice".to_string());
-
+        let result = use_case.execute("Alice".to_string());
+        
+        assert!(result.is_ok());
+        let user = result.unwrap();
         assert_eq!(user.name, "Alice");
         assert!(user.id > 0);
     }
@@ -17,9 +19,20 @@ mod tests {
     #[test]
     fn register_multiple_users_gets_unique_ids() {
         let mut use_case = RegisterUserUseCase::new();
-        let alice = use_case.execute("Alice".to_string());
-        let bob = use_case.execute("Bob".to_string());
+        let alice_result = use_case.execute("Alice".to_string());
+        let bob_result = use_case.execute("Bob".to_string());
+        let alice = alice_result.unwrap();
+        let bob = bob_result.unwrap();
 
         assert_ne!(alice.id, bob.id);
+    }
+
+    #[test]
+    fn cannot_register_with_empty_name() {
+        let mut use_case = RegisterUserUseCase::new();
+        let result = use_case.execute("".to_string());
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "User name cannot be empty");
     }
 }

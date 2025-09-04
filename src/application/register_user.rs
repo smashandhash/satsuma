@@ -9,9 +9,14 @@ impl RegisterUserUseCase {
         RegisterUserUseCase { next_id: 1 }
     }
 
-    pub fn execute(&mut self, name: String) -> User {
+    pub fn execute(&mut self, name: String) -> Result<User, String> {
+        if name.trim().is_empty() {
+            return Err("User name cannot be empty".to_string());
+        }
+
         let user = User::new(self.next_id, &name);
         self.next_id += 1;
-        user
+        
+        Ok(user)
     }
 }
