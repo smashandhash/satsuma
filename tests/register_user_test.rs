@@ -35,4 +35,12 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "User name cannot be empty");
     }
+
+    #[test]
+    fn trims_name_on_registration() {
+        let mut use_case = RegisterUserUseCase::new();
+        let result = use_case.execute("  Alice  ".to_string());
+        let user = result.unwrap();
+        assert_eq!(user.name, "Alice");
+    }
 }
