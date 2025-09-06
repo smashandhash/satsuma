@@ -1,5 +1,4 @@
 use satsuma::application::register_user::RegisterUserUseCase;
-use satsuma::domain::user::User;
 
 #[cfg(test)]
 mod tests {
