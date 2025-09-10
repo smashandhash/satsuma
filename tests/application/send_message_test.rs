@@ -30,4 +30,17 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "Sender cannot send empty message");
     }
+
+    #[test]
+    fn send_message_to_self() {
+        let sender = User::new(1, "Alice");
+        let use_case = SendMessageUseCase::new();
+
+        let result = use_case.execute(&sender, &sender, "Note to myself");
+
+        assert!(result.is_ok());
+        let message = result.unwrap();
+        assert_eq!(message.recipient_id, sender.id);
+        assert_eq!(message.content, "Note to myself");
+    }
 }
