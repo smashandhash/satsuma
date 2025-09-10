@@ -11,10 +11,23 @@ mod tests {
         let recipient = User::new(2, "Bob");
         let use_case = SendMessageUseCase::new();
 
-        let message = use_case.execute(&sender, &recipient, "Hello, Bob!");
+        let result = use_case.execute(&sender, &recipient, "Hello, Bob!");
 
-        assert_eq!(message.sender_id, sender.id);
+        assert!(result.is_ok());
+        let message = result.unwrap();
         assert_eq!(message.recipient_id, recipient.id);
         assert_eq!(message.content, "Hello, Bob!");
+    }
+
+    #[test]
+    fn send_message_rejected_for_empty_message() {
+        let sender = User::new(1, "Alice");
+        let recipient = User::new(2, "Bob");
+        let use_case = SendMessageUseCase::new();
+
+        let result = use_case.execute(&sender, &recipient, "");
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Sender cannot send empty message");
     }
 }
