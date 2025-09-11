@@ -1,16 +1,22 @@
-use satsuma::application::send_message::SendMessageUseCase;
-use satsuma::domain::user::User;
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use satsuma::application::send_message::SendMessageUseCase;
+    use satsuma::domain::user::User;
+
+    fn make_sut(is_send_to_self: bool) -> (SendMessageUseCase, User, User) {
+        let use_case = SendMessageUseCase::new();
+        let sender = User::new(1, "Alice");
+        let recipient = if is_send_to_self {
+            sender.clone()
+        } else {
+            User::new(2, "Bob")
+        };
+        (use_case, sender, recipient)
+    }
 
     #[test]
     fn send_message_to_another_user() {
-        let sender = User::new(1, "Alice");
-        let recipient = User::new(2, "Bob");
-        let use_case = SendMessageUseCase::new();
-
+        let (use_case, sender, recipient) = make_sut(false);
         let result = use_case.execute(&sender, &recipient, "Hello, Bob!");
 
         assert!(result.is_ok());
@@ -21,10 +27,7 @@ mod tests {
 
     #[test]
     fn send_message_rejected_for_empty_message() {
-        let sender = User::new(1, "Alice");
-        let recipient = User::new(2, "Bob");
-        let use_case = SendMessageUseCase::new();
-
+        let (use_case, sender, recipient) = make_sut(false);
         let result = use_case.execute(&sender, &recipient, "");
 
         assert!(result.is_err());
@@ -33,14 +36,21 @@ mod tests {
 
     #[test]
     fn send_message_to_self() {
-        let sender = User::new(1, "Alice");
-        let use_case = SendMessageUseCase::new();
-
-        let result = use_case.execute(&sender, &sender, "Note to myself");
+        let (use_case, sender, recipient) = make_sut(true);
+        let result = use_case.execute(&sender, &recipient, "Note to myself");
 
         assert!(result.is_ok());
         let message = result.unwrap();
-        assert_eq!(message.recipient_id, sender.id);
+        assert_eq!(message.recipient_id, recipient.id);
         assert_eq!(message.content, "Note to myself");
+    }
+
+    #[test]
+    fn send_message_rejected_due_the_content_is_only_spaces() {
+        let (use_case, sender, recipient) = make_sut(false);
+        let result = use_case.execute(&sender, &recipient, " ");
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Sender cannot send empty message");
     }
 }

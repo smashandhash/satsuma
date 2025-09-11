@@ -9,10 +9,11 @@ impl SendMessageUseCase {
     }
 
     pub fn execute(&self, sender: &User, recipient: &User, content: &str) -> Result<Message, String> {
-        if content.is_empty() {
+        let trimmed_content = content.trim();
+        if trimmed_content.is_empty() {
             return Err("Sender cannot send empty message".to_string());
         }
-        let message = Message::new(1, sender.id, recipient.id, content);
+        let message = Message::new(1, sender.id, recipient.id, trimmed_content);
         Ok(message)
     }
 }
