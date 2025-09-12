@@ -2,6 +2,7 @@
 mod tests {
     use satsuma::application::send_message::SendMessageUseCase;
     use satsuma::domain::user::User;
+    use chrono::{Utc, Duration};
 
     fn make_sut(is_send_to_self: bool, max_length: usize) -> (SendMessageUseCase, User, User) {
         let use_case = SendMessageUseCase::new(max_length);
@@ -60,5 +61,17 @@ mod tests {
         let result = use_case.execute(&sender, &recipient, "Hello, Bob");
 
         assert_eq!(result.unwrap_err(), "Message too long".to_string());
+    }
+
+    #[test]
+    fn send_message_with_recent_timestamp() {
+        let (use_case, sender, recipient) = make_sut(false, 200);
+        let time_now = Utc::now();
+
+        let result = use_case.execute(&sender, &recipient, "Hello");
+
+        assert!(result.is_ok());
+        let message = result.unwrap();
+        assert!((time_now - message.timestamp).num_seconds().abs() < 5);
     }
 }
