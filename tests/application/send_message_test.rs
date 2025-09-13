@@ -2,7 +2,7 @@
 mod tests {
     use satsuma::application::send_message::SendMessageUseCase;
     use satsuma::domain::user::User;
-    use chrono::{Utc, Duration};
+    use chrono::Utc;
 
     fn make_sut(is_send_to_self: bool, max_length: usize) -> (SendMessageUseCase, User, User) {
         let use_case = SendMessageUseCase::new(max_length);

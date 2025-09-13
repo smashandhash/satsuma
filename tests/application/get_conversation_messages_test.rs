@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use satsuma::application::get_conversation_messages::GetConversationMessageUseCase;
+    use satsuma::application::get_conversation_messages::GetConversationMessagesUseCase;
     use satsuma::domain::message::Message;
     use satsuma::infrastructure::message_repository::MessageRepository;
 
@@ -11,7 +11,7 @@ mod tests {
             Message::new(2, 2, 1, "Hello, Alice"),
         ];
         let repository = MessageRepositoryStub::new(messages.clone());
-        let use_case = GetConversationMessagesUseCase::new(&repo);
+        let use_case = GetConversationMessagesUseCase::new(&repository);
 
         let conversation = use_case.execute("alice", "bob");
 
@@ -30,7 +30,7 @@ mod tests {
         }
     }
 
-    impl MessageRepositoryStub for MessageRepository {
+    impl MessageRepository for MessageRepositoryStub {
         fn find_conversation(&self, sender_id: &str, recipient_id: &str) -> Vec<Message> {
             self.messages.clone()
         }
