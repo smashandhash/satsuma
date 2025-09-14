@@ -10,7 +10,7 @@ impl<'a> GetConversationMessagesUseCase<'a> {
         Self { repository }
     }
 
-    pub fn execute(&self, sender_id: &str, recipient_id: &str) -> Vec<Message> {
+    pub fn execute(&self, sender_id: u64, recipient_id: u64) -> Vec<Message> {
         self.repository.find_conversation(sender_id, recipient_id)
     }
 }

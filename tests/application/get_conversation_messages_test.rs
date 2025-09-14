@@ -13,11 +13,20 @@ mod tests {
         let repository = MessageRepositoryStub::new(messages.clone());
         let use_case = GetConversationMessagesUseCase::new(&repository);
 
-        let conversation = use_case.execute("alice", "bob");
+        let conversation = use_case.execute(1, 2);
 
         assert_eq!(conversation.len(), 2);
         assert_eq!(conversation[0].content, "Hello, Bob");
         assert_eq!(conversation[1].content, "Hello, Alice");
+    }
+
+    #[test]
+    fn get_empty_conversation_messages() {
+        let messages = Vec::new();
+        let repository = MessageRepositoryStub::new(messages.clone());
+        let use_case = GetConversationMessagesUseCase::new(&repository);
+        let conversation = use_case.execute(1, 2);
+        assert_eq!(conversation.len(), 0);
     }
 
     pub struct MessageRepositoryStub {
@@ -31,7 +40,7 @@ mod tests {
     }
 
     impl MessageRepository for MessageRepositoryStub {
-        fn find_conversation(&self, sender_id: &str, recipient_id: &str) -> Vec<Message> {
+        fn find_conversation(&self, sender_id: u64, recipient_id: u64) -> Vec<Message> {
             self.messages.clone()
         }
     }
