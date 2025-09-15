@@ -29,6 +29,19 @@ mod tests {
         assert_eq!(conversation.len(), 0);
     }
 
+    #[test]
+    fn get_self_conversation_messages() {
+        let messages = vec![
+            Message::new(1, 1, 1, "Note to myself"),
+        ];
+        let repository = MessageRepositoryStub::new(messages);
+        let use_case = GetConversationMessagesUseCase::new(&repository);
+        let conversation = use_case.execute(1, 1);
+
+        assert_eq!(conversation.len(), 1);
+        assert_eq!(conversation[0].content, "Note to myself");
+    }
+
     pub struct MessageRepositoryStub {
         messages: Vec<Message>,
     }
