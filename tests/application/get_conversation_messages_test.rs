@@ -42,6 +42,19 @@ mod tests {
         assert_eq!(conversation[0].content, "Note to myself");
     }
 
+    #[test]
+    fn get_conversation_messages_not_showing_due_to_different_ids() {
+        let messages = vec![
+            Message::new(1, 2, 3, "Hello"),
+            Message::new(2, 3, 2, "Hi"),
+        ];
+        let repository = MessageRepositoryStub::new(messages.clone());
+        let use_case = GetConversationMessagesUseCase::new(&repository);
+        let conversation = use_case.execute(1, 2);
+
+        assert_eq!(conversation.len(), 0);
+    }
+
     pub struct MessageRepositoryStub {
         messages: Vec<Message>,
     }
@@ -54,7 +67,13 @@ mod tests {
 
     impl MessageRepository for MessageRepositoryStub {
         fn find_conversation(&self, sender_id: u64, recipient_id: u64) -> Vec<Message> {
-            self.messages.clone()
+            self.messages
+                .iter()
+                .filter( |m| {
+                    (m.sender_id == sender_id && m.recipient_id == recipient_id) || (m.sender_id == recipient_id && m.recipient_id == sender_id)
+                })
+                .cloned()
+                    .collect()
         }
     }
 }
