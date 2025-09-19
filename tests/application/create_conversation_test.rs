@@ -13,6 +13,16 @@ mod tests {
         assert_eq!(conversation.participant_ids, vec![1, 2]);
     }
 
+    #[test]
+    fn create_conversation_of_same_user() {
+        let mut repository = ConversationRepositoryStub::new();
+        let mut use_case = CreateConversationUseCase::new(&mut repository);
+        
+        let conversation = use_case.execute(1, 1);
+
+        assert_eq!(conversation.participant_ids, [1, 1]);
+    }
+
     struct ConversationRepositoryStub {
         saved: Option<Conversation>,
     }
