@@ -10,9 +10,12 @@ impl<'a> CreateConversationUseCase<'a> {
         Self { repository }
     }
 
-    pub fn execute(&mut self, sender_id: u64, recipient_id: u64) -> Conversation {
+    pub fn execute(&mut self, sender_id: u64, recipient_id: u64) -> Result<Conversation, String> {
+        if sender_id == 0 || recipient_id == 0 {
+            return Err("Participants cannot be zero".to_string());
+        }
         let conversation = Conversation::new(1, vec![sender_id, recipient_id]);
         self.repository.save(conversation.clone());
-        conversation
+        Ok(conversation)
     }
 }

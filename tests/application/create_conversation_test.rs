@@ -9,7 +9,7 @@ mod tests {
         let mut repository = ConversationRepositoryStub::new();
         let mut use_case = CreateConversationUseCase::new(&mut repository);
 
-        let conversation = use_case.execute(1, 2);
+        let conversation = use_case.execute(1, 2).unwrap();
         assert_eq!(conversation.participant_ids, vec![1, 2]);
     }
 
@@ -18,9 +18,20 @@ mod tests {
         let mut repository = ConversationRepositoryStub::new();
         let mut use_case = CreateConversationUseCase::new(&mut repository);
         
-        let conversation = use_case.execute(1, 1);
+        let result = use_case.execute(1, 1).unwrap();
 
-        assert_eq!(conversation.participant_ids, [1, 1]);
+        assert_eq!(result.participant_ids, [1, 1]);
+    }
+
+    #[test]
+    fn create_conversation_failed_due_user_ids_are_zero() {
+        let mut repository = ConversationRepositoryStub::new();
+        let mut use_case = CreateConversationUseCase::new(&mut repository);
+
+        let result = use_case.execute(1, 0);
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Participants cannot be zero");
     }
 
     struct ConversationRepositoryStub {

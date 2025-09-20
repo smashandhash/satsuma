@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 
 use super::message::Message;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Conversation {
     pub id: u64,
     pub participant_ids: Vec<u64>,
