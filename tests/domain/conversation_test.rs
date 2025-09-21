@@ -1,5 +1,6 @@
 use satsuma::domain::conversation::Conversation;
 use satsuma::domain::message::Message;
+use satsuma::domain::user::User;
 
 #[cfg(test)]
 mod tests {
@@ -50,5 +51,15 @@ mod tests {
 
         assert!(!conversation.add_message(outsider_message));
         assert!(conversation.messages.is_empty());
+    }
+
+    #[test]
+    fn add_participant_on_conversation() {
+        let mut conversation = Conversation::new(1, vec![101, 202]);
+        let user = User::new(1, "Alice");
+
+        conversation.add_participant(user.id);
+
+        assert_eq!(conversation.participant_ids, vec![101, 202, 1]);
     }
 }

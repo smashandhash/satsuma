@@ -31,4 +31,8 @@ impl Conversation {
             false
         }
     }
+
+    pub fn add_participant(&mut self, user_id: u64) {
+        self.participant_ids.push(user_id);
+    }
 }
