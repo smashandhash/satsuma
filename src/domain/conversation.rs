@@ -32,7 +32,11 @@ impl Conversation {
         }
     }
 
-    pub fn add_participant(&mut self, user_id: u64) {
+    pub fn add_participant(&mut self, user_id: u64) -> Result<(), String> {
+        if self.participant_ids.contains(&user_id) {
+            return Err("A `Conversation` cannot contain duplicate participants.".to_string());
+        }
         self.participant_ids.push(user_id);
+        Ok(())
     }
 }

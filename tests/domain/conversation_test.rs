@@ -58,8 +58,9 @@ mod tests {
         let mut conversation = Conversation::new(1, vec![101, 202]);
         let user = User::new(1, "Alice");
 
-        conversation.add_participant(user.id);
+        let result = conversation.add_participant(user.id);
 
+        assert!(result.is_ok());
         assert_eq!(conversation.participant_ids, vec![101, 202, 1]);
     }
 }
