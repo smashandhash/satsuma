@@ -14,7 +14,7 @@ impl<'a> CreateConversationUseCase<'a> {
         if sender_id == 0 || recipient_id == 0 {
             return Err("Participants cannot be zero".to_string());
         }
-        let conversation = Conversation::new(1, vec![sender_id, recipient_id]);
+        let conversation = Conversation::new(1, sender_id, vec![sender_id, recipient_id]);
         self.repository.save(conversation.clone());
         Ok(conversation)
     }

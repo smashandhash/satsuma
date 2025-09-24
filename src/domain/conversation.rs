@@ -5,15 +5,17 @@ use super::message::Message;
 #[derive(Debug, Clone)]
 pub struct Conversation {
     pub id: u64,
+    pub creator_id: u64,
     pub participant_ids: Vec<u64>,
     pub messages: Vec<Message>,
     pub created_at: DateTime<Utc>,
 }
 
 impl Conversation {
-    pub fn new(id: u64, participant_ids: Vec<u64>) -> Self {
+    pub fn new(id: u64, creator_id: u64, participant_ids: Vec<u64>) -> Self {
         Self {
             id,
+            creator_id,
             participant_ids,
             messages: Vec::new(),
             created_at: Utc::now(),
