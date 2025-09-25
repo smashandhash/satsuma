@@ -30,4 +30,17 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "Only the creator can add participants");
     }
+
+    #[test]
+    fn add_participant_to_conversation_failed_due_to_already_added() {
+        let creator = User::new(1, "Alice");
+        let existing_participant = User::new(2, "Bob");
+        let mut conversation = Conversation::new(1, creator.id, vec![creator.id, existing_participant.id]);
+
+        let use_case = AddParticipantToConversationUseCase;
+        let result = use_case.execute(&mut conversation, creator.id, existing_participant.id);
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "A `Conversation` cannot contain duplicate participants.");
+    }
 }
