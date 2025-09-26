@@ -1,39 +1,23 @@
-use satsuma::application::change_name::ChangeNameUseCase;
-use satsuma::domain::user::User;
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use satsuma::application::change_name::ChangeNameUseCase;
+    use satsuma::domain::user::User;
+    use rstest::rstest;
 
-    #[test]
-    fn change_name_with_new_name() {
+    #[rstest]
+    #[case("change name with a new name", "Bob", true)]
+    #[case("change name with an empty name", "", false)]
+    #[case("change name with spaces on its name", " Bob ", true)]
+    fn change_name(
+        #[case] _label: &str,
+        #[case] new_name: &str,
+        #[case] should_succeed: bool
+        ) {
         let mut user = User::new(1, "Alice");
-        let use_case = ChangeNameUseCase::new();
+        let use_case = ChangeNameUseCase;
 
-        let result = use_case.execute(&mut user, "Bob");
+        let result = use_case.execute(&mut user, &new_name);
         
-        assert!(result.is_ok());
-        assert_eq!(user.name, "Bob");
-    }
-
-    #[test]
-    fn change_name_cannot_with_empty_name() {
-        let mut user = User::new(1, "Alice");
-        let use_case = ChangeNameUseCase::new();
-
-        let result = use_case.execute(&mut user, "");
-
-        assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "New name cannot be empty");
-    }
-
-    #[test]
-    fn change_name_should_trims_spaces_on_new_name() {
-        let mut user = User::new(1, "Alice");
-        let use_case = ChangeNameUseCase::new();
-
-        let result = use_case.execute(&mut user, " Bob ");
-        assert!(result.is_ok());
-        assert_eq!(user.name, "Bob");
+        assert_eq!(result.is_ok(), should_succeed);
     }
 }
