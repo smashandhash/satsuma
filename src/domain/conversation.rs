@@ -41,4 +41,8 @@ impl Conversation {
         self.participant_ids.push(user_id);
         Ok(())
     }
+
+    pub fn remove_participant(&mut self, user_id: u64) {
+        self.participant_ids.retain(|&target_id| target_id != user_id);
+    }
 }

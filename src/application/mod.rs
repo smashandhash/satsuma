@@ -4,3 +4,4 @@ pub mod send_message;
 pub mod get_conversation_messages;
 pub mod create_conversation;
 pub mod add_participant_to_conversation;
+pub mod remove_participant_from_conversation;
