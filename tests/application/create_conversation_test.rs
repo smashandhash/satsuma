@@ -44,5 +44,9 @@ mod tests {
         fn save(&mut self, conversation: Conversation) {
             self.saved = Some(conversation);
         }
+
+        fn load(&mut self, user_id: u64) -> Vec<Conversation> {
+            Vec::new()
+        }
     }
 }
