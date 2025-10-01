@@ -63,4 +63,14 @@ mod tests {
         assert!(result.is_ok());
         assert_eq!(conversation.participant_ids, vec![101, 202, 1]);
     }
+
+    #[test]
+    fn remove_participant_on_conversation() {
+        let mut conversation = Conversation::new(1, 1, vec![1, 2, 3]);
+        let user_target = User::new(3, "Chad");
+
+        conversation.remove_participant(user_target.id);
+
+        assert!(!conversation.participant_ids.contains(&user_target.id));
+    }
 }
