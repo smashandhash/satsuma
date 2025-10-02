@@ -11,6 +11,8 @@ impl<'a> ConversationListUseCase<'a> {
     }
 
     pub fn execute(&mut self, user_id: u64) -> Vec<Conversation> {
-        self.repository.load(user_id).clone()
+        self.repository.load(user_id).iter()
+            .filter( |conversation| conversation.participant_ids.contains(&user_id) )
+            .cloned().collect()
     }
 }

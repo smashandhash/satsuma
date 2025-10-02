@@ -17,6 +17,18 @@ mod tests {
         assert_eq!(conversation_list, conversation);
     }
 
+    #[test]
+    fn do_not_show_conversation_list_with_different_id() {
+        let conversation = vec![create_conversation()];
+        let mut repository = ConversationRepositoryStub::new(conversation.clone());
+        let user = User::new(4, "Denise");
+        let mut use_case = ConversationListUseCase::new(&mut repository);
+
+        let conversation_list = use_case.execute(user.id);
+
+        assert_ne!(conversation_list, conversation);
+    }
+
     fn create_conversation() -> Conversation {
         Conversation::new(1, 1, vec![1, 2, 3])
     }
@@ -32,9 +44,9 @@ mod tests {
     }
 
     impl ConversationRepository for ConversationRepositoryStub {
-        fn save(&mut self, conversation: Conversation) {}
+        fn save(&mut self, _: Conversation) {}
 
-        fn load(&mut self, user_id: u64) -> Vec<Conversation> {
+        fn load(&mut self, _: u64) -> Vec<Conversation> {
             self.conversation_list.iter().cloned().collect()
         }
     }
