@@ -1,8 +1,6 @@
-use satsuma::application::register_user::RegisterUserUseCase;
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use satsuma::application::register_user::RegisterUserUseCase;
 
     #[test]
     fn register_user_creates_new_user() {

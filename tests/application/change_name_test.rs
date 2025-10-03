@@ -1,7 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use satsuma::application::change_name::ChangeNameUseCase;
-    use satsuma::domain::user::User;
+    use satsuma::{
+        application::change_name::ChangeNameUseCase,
+        domain::user::User 
+    };
     use rstest::rstest;
 
     #[rstest]

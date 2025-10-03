@@ -1,14 +1,14 @@
-use satsuma::domain::conversation::Conversation;
-use satsuma::domain::message::Message;
-use satsuma::domain::user::User;
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use satsuma::domain::{
+        conversation::Conversation,
+        message::Message,
+        user::User
+    };
 
     #[test]
     fn conversation_init_should_do_nothing() {
-        let conversation = Conversation::new(1, 101, vec![101, 202]);
+        let _conversation = Conversation::new(1, 101, vec![101, 202]);
     }
 
     #[test]
@@ -26,14 +26,14 @@ mod tests {
     fn message_should_in_order() {
         let mut conversation = Conversation::new(1, 101, vec![101, 202]);
 
-        let firstMessage = Message::new(1, 101, 202, "First");
-        let secondMessage = Message::new(2, 202, 101, "Second");
+        let first_message = Message::new(1, 101, 202, "First");
+        let second_message = Message::new(2, 202, 101, "Second");
 
-        conversation.add_message(firstMessage);
-        conversation.add_message(secondMessage);
+        conversation.add_message(first_message.clone());
+        conversation.add_message(second_message.clone());
 
-        assert_eq!(conversation.messages[0].content, "First");
-        assert_eq!(conversation.messages[1].content, "Second");
+        assert_eq!(conversation.messages[0].content, first_message.content);
+        assert_eq!(conversation.messages[1].content, second_message.content);
     }
 
     #[test]

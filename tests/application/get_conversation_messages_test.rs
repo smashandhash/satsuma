@@ -1,8 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use satsuma::application::get_conversation_messages::GetConversationMessagesUseCase;
-    use satsuma::domain::message::Message;
-    use satsuma::infrastructure::message_repository::MessageRepository;
+    use satsuma::{
+        application::get_conversation_messages::GetConversationMessagesUseCase,
+        domain::message::Message,
+        infrastructure::message_repository::MessageRepository
+    };
     use rstest::rstest;
 
     #[rstest]

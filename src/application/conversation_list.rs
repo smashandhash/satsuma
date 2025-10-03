@@ -1,5 +1,7 @@
-use crate::domain::conversation::Conversation;
-use crate::infrastructure::conversation_repository::ConversationRepository;
+use crate::{
+    domain::conversation::Conversation,
+    infrastructure::conversation_repository::ConversationRepository
+};
 
 pub struct ConversationListUseCase<'a> {
     repository: &'a mut dyn ConversationRepository,

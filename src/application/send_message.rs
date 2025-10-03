@@ -1,5 +1,7 @@
-use crate::domain::user::User;
-use crate::domain::message::Message;
+use crate::{
+    domain::user::User,
+    domain::message::Message
+};
 
 pub struct SendMessageUseCase {
     max_length: usize,

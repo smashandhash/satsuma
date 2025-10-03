@@ -1,8 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use satsuma::application::create_conversation::CreateConversationUseCase;
-    use satsuma::domain::conversation::Conversation;
-    use satsuma::infrastructure::conversation_repository::ConversationRepository;
+    use satsuma::{
+        application::create_conversation::CreateConversationUseCase,
+        domain::conversation::Conversation,
+        infrastructure::conversation_repository::ConversationRepository
+    };
     use rstest::rstest;
 
     #[rstest]
@@ -45,7 +47,7 @@ mod tests {
             self.saved = Some(conversation);
         }
 
-        fn load(&mut self, user_id: u64) -> Vec<Conversation> {
+        fn load(&mut self, _user_id: u64) -> Vec<Conversation> {
             Vec::new()
         }
     }

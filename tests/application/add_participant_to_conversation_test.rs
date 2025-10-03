@@ -1,8 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use satsuma::application::add_participant_to_conversation::AddParticipantToConversationUseCase;
-    use satsuma::domain::conversation::Conversation;
-    use satsuma::domain::user::User;
+    use satsuma::{
+        application::add_participant_to_conversation::AddParticipantToConversationUseCase,
+        domain::conversation::Conversation,
+        domain::user::User
+    };
     use rstest::rstest;
 
     #[rstest]

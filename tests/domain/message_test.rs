@@ -1,12 +1,10 @@
-use satsuma::domain::message::Message;
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use satsuma::domain::message::Message;
 
     #[test]
     fn init_message_should_do_nothing() {
-        let message = Message::new(1, 100, 200, "Hello!");
+        let _message = Message::new(1, 100, 200, "Hello!");
     }
 
     #[test]

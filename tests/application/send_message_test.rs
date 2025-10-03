@@ -1,7 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use satsuma::application::send_message::SendMessageUseCase;
-    use satsuma::domain::user::User;
+    use satsuma::{
+        application::send_message::SendMessageUseCase,
+        domain::user::User
+    };
     use chrono::Utc;
 
     fn make_sut(is_send_to_self: bool, max_length: usize) -> (SendMessageUseCase, User, User) {

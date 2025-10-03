@@ -1,5 +1,7 @@
-use crate::domain::message::Message;
-use crate::infrastructure::message_repository::MessageRepository;
+use crate::{
+    domain::message::Message,
+    infrastructure::message_repository::MessageRepository
+};
 
 pub struct GetConversationMessagesUseCase<'a> {
     repository: &'a dyn MessageRepository,

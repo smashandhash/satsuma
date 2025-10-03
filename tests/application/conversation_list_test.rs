@@ -1,9 +1,11 @@
 #[cfg(test)]
 mod tests {
-    use satsuma::application::conversation_list::ConversationListUseCase;
-    use satsuma::domain::conversation::Conversation;
-    use satsuma::domain::user::User;
-    use satsuma::infrastructure::conversation_repository::ConversationRepository;
+    use satsuma::{
+        application::conversation_list::ConversationListUseCase,
+        domain::conversation::Conversation,
+        domain::user::User,
+        infrastructure::conversation_repository::ConversationRepository
+    };
 
     #[test]
     fn show_conversation_list() {

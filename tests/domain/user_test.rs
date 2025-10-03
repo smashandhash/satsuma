@@ -1,12 +1,10 @@
-use satsuma::domain::user::User;
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use satsuma::domain::user::User;
    
     #[test]
     fn init_user_does_nothing() {
-        let user = User::new(1, "Alice");
+        let _user = User::new(1, "Alice");
     }
 
     #[test]
