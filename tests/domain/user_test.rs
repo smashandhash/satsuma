@@ -10,14 +10,16 @@ mod tests {
     #[test]
     fn user_can_change_name() {
         let mut user = User::new(1, "Alice");
-        user.change_name("Alicia");
-        assert_eq!(user.name, "Alicia");
+        let new_name = "Alicia".to_string();
+        user.change_name(new_name.clone());
+        assert_eq!(user.name, new_name);
     }
 
     #[test]
     fn changing_name_does_not_affect_id() {
         let mut user = User::new(1, "Alice");
-        user.change_name("Alicia");
+        let new_name = "Alicia".to_string();
+        user.change_name(new_name.clone());
         assert_eq!(user.id, 1);
     }
 }

@@ -12,7 +12,7 @@ impl User {
         }
     }
 
-    pub fn change_name(&mut self, new_name: &str) {
+    pub fn change_name(&mut self, new_name: String) {
         self.name = new_name.to_string();
     }
 }
