@@ -12,9 +12,9 @@ impl<'a> ConversationListUseCase<'a> {
         Self { repository }
     }
 
-    pub fn execute(&mut self, user_id: u64) -> Vec<Conversation> {
-        self.repository.load(user_id).iter()
-            .filter( |conversation| conversation.participant_ids.contains(&user_id) )
+    pub fn execute(&mut self, user_public_key: String) -> Vec<Conversation> {
+        self.repository.load(user_public_key.clone()).iter()
+            .filter( |conversation| conversation.participant_public_keys.contains(&user_public_key) )
             .cloned().collect()
     }
 }

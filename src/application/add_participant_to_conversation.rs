@@ -3,10 +3,20 @@ use crate::domain::conversation::Conversation;
 pub struct AddParticipantToConversationUseCase;
 
 impl AddParticipantToConversationUseCase {
-    pub fn execute(&self, conversation: &mut Conversation, actor_id: u64, new_participant_id: u64) -> Result<(), String> {
-        if conversation.creator_id  != actor_id {
-            return Err("Only the creator can add participants".to_string());
+    pub fn execute(&self, conversation: &mut Conversation, actor_public_key: String, new_participant_public_key: String) -> Result<(), AddParticipantToConversationUseCaseError> {
+        if conversation.creator_public_key  != actor_public_key {
+            return Err(AddParticipantToConversationUseCaseError::RestrictedForCreator);
         }
-        conversation.add_participant(new_participant_id)
+        if conversation.participant_public_keys.contains(&new_participant_public_key) {
+            return Err(AddParticipantToConversationUseCaseError::ParticipantAlreadyExist);
+        }
+        let _ = conversation.add_participant(new_participant_public_key);
+        Ok(())
     }
+}
+
+#[derive(Debug, PartialEq)]
+pub enum AddParticipantToConversationUseCaseError {
+    RestrictedForCreator,
+    ParticipantAlreadyExist
 }

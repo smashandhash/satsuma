@@ -8,11 +8,11 @@ mod tests {
 
     fn make_sut(is_send_to_self: bool, max_length: usize) -> (SendMessageUseCase, User, User) {
         let use_case = SendMessageUseCase::new(max_length);
-        let sender = User::new(1, "Alice");
+        let sender = User::new("npub1", "Alice");
         let recipient = if is_send_to_self {
             sender.clone()
         } else {
-            User::new(2, "Bob")
+            User::new("npub2", "Bob")
         };
         (use_case, sender, recipient)
     }
@@ -24,7 +24,7 @@ mod tests {
 
         assert!(result.is_ok());
         let message = result.unwrap();
-        assert_eq!(message.recipient_id, recipient.id);
+        assert_eq!(message.recipient_public_key, recipient.public_key);
         assert_eq!(message.content, "Hello, Bob!");
     }
 
@@ -44,7 +44,7 @@ mod tests {
 
         assert!(result.is_ok());
         let message = result.unwrap();
-        assert_eq!(message.recipient_id, recipient.id);
+        assert_eq!(message.recipient_public_key, recipient.public_key);
         assert_eq!(message.content, "Note to myself");
     }
 

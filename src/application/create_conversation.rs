@@ -12,12 +12,17 @@ impl<'a> CreateConversationUseCase<'a> {
         Self { repository }
     }
 
-    pub fn execute(&mut self, sender_id: u64, recipient_id: u64) -> Result<Conversation, String> {
-        if sender_id == 0 || recipient_id == 0 {
-            return Err("Participants cannot be zero".to_string());
+    pub fn execute(&mut self, sender_public_key: &str, recipient_public_key: &str) -> Result<Conversation, CreateConversationUseCaseError> {
+        if sender_public_key == "" || recipient_public_key == "" {
+            return Err(CreateConversationUseCaseError::InvalidPublicKey);
         }
-        let conversation = Conversation::new(1, sender_id, vec![sender_id, recipient_id]);
+        let conversation = Conversation::new(1, sender_public_key, vec![sender_public_key, recipient_public_key]);
         self.repository.save(conversation.clone());
         Ok(conversation)
     }
+}
+
+#[derive(Debug, PartialEq)]
+pub enum CreateConversationUseCaseError {
+    InvalidPublicKey
 }

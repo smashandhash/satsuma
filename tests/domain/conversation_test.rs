@@ -8,13 +8,13 @@ mod tests {
 
     #[test]
     fn conversation_init_should_do_nothing() {
-        let _conversation = Conversation::new(1, 101, vec![101, 202]);
+        let _conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
     }
 
     #[test]
     fn can_add_message_to_conversation() {
-        let mut conversation = Conversation::new(1, 101, vec![101, 202]);
-        let message = Message::new(1, 101, 202, "Hello!");
+        let mut conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
+        let message = Message::new(1, "npub101", "npub202", "Hello!");
 
         conversation.add_message(message.clone());
 
@@ -24,10 +24,10 @@ mod tests {
 
     #[test]
     fn message_should_in_order() {
-        let mut conversation = Conversation::new(1, 101, vec![101, 202]);
+        let mut conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
 
-        let first_message = Message::new(1, 101, 202, "First");
-        let second_message = Message::new(2, 202, 101, "Second");
+        let first_message = Message::new(1, "npub101", "npub202", "First");
+        let second_message = Message::new(2, "npub202", "npub101", "Second");
 
         conversation.add_message(first_message.clone());
         conversation.add_message(second_message.clone());
@@ -38,16 +38,16 @@ mod tests {
 
     #[test]
     fn conversation_has_correct_participants() {
-        let conversation = Conversation::new(1, 101, vec![101, 202]);
+        let conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
         
-        assert!(conversation.participant_ids.contains(&101));
-        assert!(conversation.participant_ids.contains(&202));
+        assert!(conversation.participant_public_keys.iter().any(|public_key| public_key == "npub101"));
+        assert!(conversation.participant_public_keys.iter().any(|public_key| public_key == "npub202"));
     }
 
     #[test]
     fn reject_message_from_non_participant_conversation() {
-        let mut conversation = Conversation::new(1, 101, vec![101, 202]);
-        let outsider_message = Message::new(1, 303, 101, "Hi, can I join?");
+        let mut conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
+        let outsider_message = Message::new(1, "npub303", "npub101", "Hi, can I join?");
 
         assert!(!conversation.add_message(outsider_message));
         assert!(conversation.messages.is_empty());
@@ -55,22 +55,22 @@ mod tests {
 
     #[test]
     fn add_participant_on_conversation() {
-        let mut conversation = Conversation::new(1, 101, vec![101, 202]);
-        let user = User::new(1, "Alice");
+        let mut conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
+        let user = User::new("npub1", "Alice");
 
-        let result = conversation.add_participant(user.id);
+        let result = conversation.add_participant(user.public_key);
 
         assert!(result.is_ok());
-        assert_eq!(conversation.participant_ids, vec![101, 202, 1]);
+        assert_eq!(conversation.participant_public_keys, vec!["npub101", "npub202", "npub1"]);
     }
 
     #[test]
     fn remove_participant_on_conversation() {
-        let mut conversation = Conversation::new(1, 1, vec![1, 2, 3]);
-        let user_target = User::new(3, "Chad");
+        let mut conversation = Conversation::new(1, "npub1", vec!["npub1", "npub2", "npub3"]);
+        let user_target = User::new("npub3", "Chad");
 
-        conversation.remove_participant(user_target.id);
+        conversation.remove_participant(user_target.public_key.to_string());
 
-        assert!(!conversation.participant_ids.contains(&user_target.id));
+        assert!(!conversation.participant_public_keys.iter().any(|public_key| public_key.as_str() == user_target.public_key.as_str()));
     }
 }

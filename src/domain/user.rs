@@ -1,13 +1,13 @@
 #[derive(Debug, Clone)]
 pub struct User {
-    pub id: u64,
+    pub public_key: String,
     pub name: String
 }
 
 impl User {
-    pub fn new(id: u64, name: &str) -> Self {
+    pub fn new(public_key: &str, name: &str) -> Self {
         Self {
-            id,
+            public_key: public_key.to_string(),
             name: name.to_string(),
         }
     }

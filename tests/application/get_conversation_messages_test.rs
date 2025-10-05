@@ -8,21 +8,21 @@ mod tests {
     use rstest::rstest;
 
     #[rstest]
-    #[case("conversation between two users", vec![Message::new(1, 1, 2, "Hello, Bob"), Message::new(2, 2, 1, "Hello, Alice")], 1, 2, 2)]
-    #[case("empty conversation", Vec::new(), 1, 2, 0)]
-    #[case("self conversation", vec![Message::new(1, 1, 1, "Note to myself")], 1, 1, 1)]
-    #[case("conversation of different ID", vec![Message::new(1, 2, 3, "Hello!"), Message::new(2, 3, 2, "Hi!")], 1, 2, 0)]
+    #[case("conversation between two users", vec![Message::new(1, "npub1234", "npub2134", "Hello, Bob"), Message::new(2, "npub2134", "npub1234", "Hello, Alice")], "npub1234", "npub2134", 2)]
+    #[case("empty conversation", Vec::new(), "npub1234", "npub2134", 0)]
+    #[case("self conversation", vec![Message::new(1, "npub1234", "npub1234", "Note to myself")], "npub1234", "npub1234", 1)]
+    #[case("conversation of different ID", vec![Message::new(1, "npub2134", "npub3124", "Hello!"), Message::new(2, "npub3124", "npub2134", "Hi!")], "npub1234", "npub2134", 0)]
     fn get_conversation_messages(
         #[case] _label: &str,
         #[case] messages: Vec<Message>,
-        #[case] sender_id: u64,
-        #[case] recipient_id: u64,
+        #[case] sender_public_key: &str,
+        #[case] recipient_public_key: &str,
         #[case] conversation_length: usize
         ) {
         let repository = MessageRepositoryStub::new(messages.clone());
         let use_case = GetConversationMessagesUseCase::new(&repository);
 
-        let conversation = use_case.execute(sender_id, recipient_id);
+        let conversation = use_case.execute(sender_public_key.to_string(), recipient_public_key.to_string());
 
         assert_eq!(conversation.len(), conversation_length);
     }
@@ -38,11 +38,11 @@ mod tests {
     }
 
     impl MessageRepository for MessageRepositoryStub {
-        fn find_conversation(&self, sender_id: u64, recipient_id: u64) -> Vec<Message> {
+        fn find_conversation(&self, sender_public_key: String, recipient_public_key: String) -> Vec<Message> {
             self.messages
                 .iter()
                 .filter( |m| {
-                    (m.sender_id == sender_id && m.recipient_id == recipient_id) || (m.sender_id == recipient_id && m.recipient_id == sender_id)
+                    (m.sender_public_key == sender_public_key && m.recipient_public_key == recipient_public_key) || (m.sender_public_key == recipient_public_key && m.recipient_public_key == sender_public_key)
                 })
                 .cloned()
                     .collect()

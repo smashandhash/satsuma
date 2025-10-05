@@ -10,7 +10,7 @@ mod tests {
         assert!(result.is_ok());
         let user = result.unwrap();
         assert_eq!(user.name, "Alice");
-        assert!(user.id > 0);
+        assert!(user.public_key != "");
     }
 
     #[test]
@@ -21,7 +21,7 @@ mod tests {
         let alice = alice_result.unwrap();
         let bob = bob_result.unwrap();
 
-        assert_ne!(alice.id, bob.id);
+        assert_ne!(alice.public_key, bob.public_key);
     }
 
     #[test]

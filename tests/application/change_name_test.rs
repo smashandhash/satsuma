@@ -3,7 +3,8 @@ mod tests {
     use satsuma::{
         application::change_name::ChangeNameUseCase,
         application::change_name::NostrChangeNameUseCase,
-        domain::user::User 
+        domain::user::User,
+        infrastructure::relay_manager::RelayManager,
     };
     use rstest::rstest;
 
@@ -16,8 +17,9 @@ mod tests {
         #[case] new_name: String,
         #[case] should_succeed: bool
         ) {
-        let user = User::new(1, "Alice");
-        let mut use_case = NostrChangeNameUseCase { user: user };
+        let mut user = User::new("npub1234".into(), "Alice".into());
+        let relay_manager = RelayManager;
+        let mut use_case = NostrChangeNameUseCase { user: &mut user, relay_manager: &relay_manager };
 
         let result = use_case.execute(new_name);
         
