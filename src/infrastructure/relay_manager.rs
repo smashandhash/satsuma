@@ -1,10 +1,14 @@
-use crate::infrastructure::nostr_event::NostrEvent;
+use crate::infrastructure::{
+    nostr_event::NostrEvent,
+    relay_publisher::RelayPublisher,
+    relay_publisher::RelayPublisherError
+};
 
 #[derive(Default)]
 pub struct RelayManager;
 
-impl RelayManager {
-    pub fn publish(&self, event: NostrEvent) -> Result<(), String> {
+impl RelayPublisher for RelayManager {
+    fn publish(&self, event: NostrEvent) -> Result<(), RelayPublisherError> {
         println!("Publishing event: {:?}", event);
         Ok(())
     }
