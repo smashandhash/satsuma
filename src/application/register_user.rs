@@ -9,9 +9,9 @@ impl RegisterUserUseCase {
         RegisterUserUseCase { next_id: 1 }
     }
 
-    pub fn execute(&mut self, name: String) -> Result<User, String> {
+    pub fn execute(&mut self, name: String) -> Result<User, RegisterUserUseCaseError> {
         if name.trim().is_empty() {
-            return Err("User name cannot be empty".to_string());
+            return Err(RegisterUserUseCaseError::InvalidName);
         }
 
         let user = User::new(&self.next_id.to_string(), &name.trim());
@@ -19,4 +19,9 @@ impl RegisterUserUseCase {
         
         Ok(user)
     }
+}
+
+#[derive(Debug, PartialEq)]
+pub enum RegisterUserUseCaseError {
+    InvalidName,
 }

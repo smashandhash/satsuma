@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use satsuma::application::register_user::RegisterUserUseCase;
+    use satsuma::application::register_user::{
+        RegisterUserUseCase,
+        RegisterUserUseCaseError
+    };
 
     #[test]
     fn register_user_creates_new_user() {
@@ -30,7 +33,7 @@ mod tests {
         let result = use_case.execute("".to_string());
 
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "User name cannot be empty");
+        assert_eq!(result.unwrap_err(), RegisterUserUseCaseError::InvalidName);
     }
 
     #[test]
