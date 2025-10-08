@@ -1,7 +1,9 @@
 #[derive(Debug, Clone)]
 pub struct User {
     pub public_key: String,
-    pub name: String
+    pub name: String,
+    pub about: Option<String>,
+    pub picture: Option<String>
 }
 
 impl User {
@@ -9,6 +11,8 @@ impl User {
         Self {
             public_key: public_key.to_string(),
             name: name.to_string(),
+            about: None,
+            picture: None
         }
     }
 
