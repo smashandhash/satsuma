@@ -1,21 +1,24 @@
 use crate::domain::user::User;
+use crate::infrastructure::local_storage::LocalStorage;
 
-pub struct RegisterUserUseCase {
-    next_id: u64,
+pub trait RegisterUserUseCase {
+    fn execute(&self, desired_name: &str) -> Result<User, RegisterUserUseCaseError>;
 }
 
-impl RegisterUserUseCase {
-    pub fn new() -> Self {
-        RegisterUserUseCase { next_id: 1 }
-    }
+pub struct NostrRegisterUserUseCase<'a, S: LocalStorage> {
+    pub storage: &'a S,
+}
 
-    pub fn execute(&mut self, name: String) -> Result<User, RegisterUserUseCaseError> {
-        if name.trim().is_empty() {
+impl<'a, S> RegisterUserUseCase for NostrRegisterUserUseCase<'a, S> where S: LocalStorage {
+    fn execute(&self, desired_name: &str) -> Result<User, RegisterUserUseCaseError> {
+        let trimmed_desired_name = desired_name.trim();
+        if trimmed_desired_name.is_empty() {
             return Err(RegisterUserUseCaseError::InvalidName);
         }
 
-        let user = User::new(&self.next_id.to_string(), &name.trim());
-        self.next_id += 1;
+        let user = User::new(&format!("npub{}", trimmed_desired_name), &trimmed_desired_name);
+
+        let _ = self.storage.save_user(&user);
         
         Ok(user)
     }
