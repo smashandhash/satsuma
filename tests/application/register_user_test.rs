@@ -51,6 +51,17 @@ mod tests {
         assert_eq!(user.name, "Alice");
     }
 
+    #[test]
+    fn local_storage_failing() {
+        let error_text = "Failed for test".to_string();
+        let local_storage = LocalStorageStub { simulated_error: Some(error_text.clone()) };
+        let use_case = NostrRegisterUserUseCase { storage: &local_storage };
+        let result = use_case.execute("Bob");
+        
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), RegisterUserUseCaseError::PersistError(error_text.clone()));
+    }
+
     pub struct LocalStorageStub {
         simulated_error: Option<String>
     }

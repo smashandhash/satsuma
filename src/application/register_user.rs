@@ -18,7 +18,7 @@ impl<'a, S> RegisterUserUseCase for NostrRegisterUserUseCase<'a, S> where S: Loc
 
         let user = User::new(&format!("npub{}", trimmed_desired_name), &trimmed_desired_name);
 
-        let _ = self.storage.save_user(&user);
+        self.storage.save_user(&user).map_err(|e| RegisterUserUseCaseError::PersistError(e))?;
         
         Ok(user)
     }
@@ -27,4 +27,5 @@ impl<'a, S> RegisterUserUseCase for NostrRegisterUserUseCase<'a, S> where S: Loc
 #[derive(Debug, PartialEq)]
 pub enum RegisterUserUseCaseError {
     InvalidName,
+    PersistError(String),
 }
