@@ -1,15 +1,21 @@
 use crate::domain::user::User;
-use crate::infrastructure::local_storage::LocalStorage;
+use crate::infrastructure::{
+    local_storage::LocalStorage,
+    nostr_event::NostrEvent,
+    relay_publisher::RelayPublisher
+};
+use serde_json::json;
 
 pub trait RegisterUserUseCase {
     fn execute(&self, desired_name: &str) -> Result<User, RegisterUserUseCaseError>;
 }
 
-pub struct NostrRegisterUserUseCase<'a, S: LocalStorage> {
+pub struct NostrRegisterUserUseCase<'a, S: LocalStorage, R: RelayPublisher> {
     pub storage: &'a S,
+    pub relay_publisher: &'a R
 }
 
-impl<'a, S> RegisterUserUseCase for NostrRegisterUserUseCase<'a, S> where S: LocalStorage {
+impl<'a, S, R> RegisterUserUseCase for NostrRegisterUserUseCase<'a, S, R> where S: LocalStorage, R: RelayPublisher {
     fn execute(&self, desired_name: &str) -> Result<User, RegisterUserUseCaseError> {
         let trimmed_desired_name = desired_name.trim();
         if trimmed_desired_name.is_empty() {
@@ -19,6 +25,16 @@ impl<'a, S> RegisterUserUseCase for NostrRegisterUserUseCase<'a, S> where S: Loc
         let user = User::new(&format!("npub{}", trimmed_desired_name), &trimmed_desired_name);
 
         self.storage.save_user(&user).map_err(|e| RegisterUserUseCaseError::PersistError(e))?;
+
+        let content = json!({
+            "name": user.name,
+            "about": user.about,
+            "picture": user.picture
+        }).to_string();
+
+        let event = NostrEvent::new(0, content, &user.public_key);
+
+        let _ = self.relay_publisher.publish(event);
         
         Ok(user)
     }

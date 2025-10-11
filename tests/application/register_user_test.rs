@@ -6,12 +6,21 @@ mod tests {
         RegisterUserUseCaseError
     };
     use satsuma::domain::user::User;
-    use satsuma::infrastructure::local_storage::LocalStorage;
+    use satsuma::infrastructure::{
+        local_storage::LocalStorage,
+        nostr_event::NostrEvent,
+        relay_publisher::RelayPublisher,
+        relay_publisher::RelayPublisherError
+    };
 
     #[test]
     fn register_user_creates_new_user() {
         let local_storage = LocalStorageStub { simulated_error: None };
-        let use_case = NostrRegisterUserUseCase { storage: &local_storage };
+        let relay_publisher = RelayPublisherStub { simulated_error: None };
+        let use_case = NostrRegisterUserUseCase { 
+            storage: &local_storage, 
+            relay_publisher: &relay_publisher 
+        };
         let result = use_case.execute("Alice");
         
         assert!(result.is_ok());
@@ -23,7 +32,11 @@ mod tests {
     #[test]
     fn register_multiple_users_gets_unique_ids() {
         let local_storage = LocalStorageStub { simulated_error: None };
-        let use_case = NostrRegisterUserUseCase { storage: &local_storage };
+        let relay_publisher = RelayPublisherStub { simulated_error: None };
+        let use_case = NostrRegisterUserUseCase { 
+            storage: &local_storage,
+            relay_publisher: &relay_publisher
+        };
         let alice_result = use_case.execute("Alice");
         let bob_result = use_case.execute("Bob");
         let alice = alice_result.unwrap();
@@ -35,7 +48,11 @@ mod tests {
     #[test]
     fn cannot_register_with_empty_name() {
         let local_storage = LocalStorageStub { simulated_error: None };
-        let use_case = NostrRegisterUserUseCase { storage: &local_storage };
+        let relay_publisher = RelayPublisherStub { simulated_error: None };
+        let use_case = NostrRegisterUserUseCase { 
+            storage: &local_storage,
+            relay_publisher: &relay_publisher
+        };
         let result = use_case.execute("");
 
         assert!(result.is_err());
@@ -45,7 +62,11 @@ mod tests {
     #[test]
     fn trims_name_on_registration() {
         let local_storage = LocalStorageStub { simulated_error: None };
-        let use_case = NostrRegisterUserUseCase { storage: &local_storage };
+        let relay_publisher = RelayPublisherStub { simulated_error: None };
+        let use_case = NostrRegisterUserUseCase { 
+            storage: &local_storage,
+            relay_publisher: &relay_publisher
+        };
         let result = use_case.execute("  Alice  ");
         let user = result.unwrap();
         assert_eq!(user.name, "Alice");
@@ -55,7 +76,11 @@ mod tests {
     fn local_storage_failing() {
         let error_text = "Failed for test".to_string();
         let local_storage = LocalStorageStub { simulated_error: Some(error_text.clone()) };
-        let use_case = NostrRegisterUserUseCase { storage: &local_storage };
+        let relay_publisher = RelayPublisherStub { simulated_error: None };
+        let use_case = NostrRegisterUserUseCase { 
+            storage: &local_storage,
+            relay_publisher: &relay_publisher
+        };
         let result = use_case.execute("Bob");
         
         assert!(result.is_err());
@@ -73,6 +98,16 @@ mod tests {
             } else {
                 Ok(())
             }
+        }
+    }
+
+    pub struct RelayPublisherStub {
+        simulated_error: Option<RelayPublisherError>
+    }
+
+    impl RelayPublisher for RelayPublisherStub {
+        fn publish(&self, _event: NostrEvent) -> Result<(), RelayPublisherError> {
+            self.simulated_error.clone().map_or(Ok(()), Err)
         }
     }
 }
