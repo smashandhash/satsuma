@@ -2,7 +2,8 @@ use crate::domain::user::User;
 use crate::infrastructure::{
     local_storage::LocalStorage,
     nostr_event::NostrEvent,
-    relay_publisher::RelayPublisher
+    relay_publisher::RelayPublisher,
+    relay_publisher::RelayPublisherError
 };
 use serde_json::json;
 
@@ -34,7 +35,9 @@ impl<'a, S, R> RegisterUserUseCase for NostrRegisterUserUseCase<'a, S, R> where 
 
         let event = NostrEvent::new(0, content, &user.public_key);
 
-        let _ = self.relay_publisher.publish(event);
+        self.relay_publisher
+            .publish(event)
+            .map_err(|e| RegisterUserUseCaseError::RelayFailed(e))?;
         
         Ok(user)
     }
@@ -44,4 +47,5 @@ impl<'a, S, R> RegisterUserUseCase for NostrRegisterUserUseCase<'a, S, R> where 
 pub enum RegisterUserUseCaseError {
     InvalidName,
     PersistError(String),
+    RelayFailed(RelayPublisherError)
 }

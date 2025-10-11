@@ -87,6 +87,21 @@ mod tests {
         assert_eq!(result.unwrap_err(), RegisterUserUseCaseError::PersistError(error_text.clone()));
     }
 
+    #[test]
+    fn relay_publisher_failing() {
+        let error = RelayPublisherError::ConnectionFailed;
+        let local_storage = LocalStorageStub { simulated_error: None };
+        let relay_publisher = RelayPublisherStub { simulated_error: Some(error.clone()) };
+        let use_case = NostrRegisterUserUseCase {
+            storage: &local_storage,
+            relay_publisher: &relay_publisher
+        };
+        let result = use_case.execute("Alisa");
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), RegisterUserUseCaseError::RelayFailed(error.clone()));
+    }
+
     pub struct LocalStorageStub {
         simulated_error: Option<String>
     }
