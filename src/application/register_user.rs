@@ -11,12 +11,12 @@ pub trait RegisterUserUseCase {
     fn execute(&self, desired_name: &str) -> Result<User, RegisterUserUseCaseError>;
 }
 
-pub struct NostrRegisterUserUseCase<'a, S: LocalStorage, R: RelayPublisher> {
-    pub storage: &'a S,
-    pub relay_publisher: &'a R
+pub struct NostrRegisterUserUseCase<S: LocalStorage, R: RelayPublisher> {
+    pub storage: S,
+    pub relay_publisher: R
 }
 
-impl<'a, S, R> RegisterUserUseCase for NostrRegisterUserUseCase<'a, S, R> where S: LocalStorage, R: RelayPublisher {
+impl<S, R> RegisterUserUseCase for NostrRegisterUserUseCase<S, R> where S: LocalStorage, R: RelayPublisher {
     fn execute(&self, desired_name: &str) -> Result<User, RegisterUserUseCaseError> {
         let trimmed_desired_name = desired_name.trim();
         if trimmed_desired_name.is_empty() {
