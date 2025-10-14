@@ -12,7 +12,7 @@ impl SendMessageUseCase {
         Self { max_length }
     }
 
-    pub fn execute(&self, sender: &User, recipient: &User, content: &str) -> Result<Message, String> {
+    pub fn execute(&self, sender: &User, content: &str) -> Result<Message, String> {
         let trimmed_content = content.trim();
         if trimmed_content.is_empty() {
             return Err("Sender cannot send empty message".to_string());
@@ -22,7 +22,7 @@ impl SendMessageUseCase {
             return Err("Message too long".to_string());
         }
 
-        let message = Message::new(1, &sender.public_key, &recipient.public_key, trimmed_content);
+        let message = Message::new(1, &sender.public_key, trimmed_content);
         Ok(message)
     }
 }

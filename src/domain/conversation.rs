@@ -24,9 +24,8 @@ impl Conversation {
 
     pub fn add_message(&mut self, message: Message) -> bool {
         let valid_sender = self.participant_public_keys.contains(&message.sender_public_key);
-        let valid_recipient = self.participant_public_keys.contains(&message.recipient_public_key);
         
-        if valid_sender && valid_recipient {
+        if valid_sender {
             self.messages.push(message);
             true
         } else {

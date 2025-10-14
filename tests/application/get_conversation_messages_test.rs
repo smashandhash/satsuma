@@ -8,10 +8,10 @@ mod tests {
     use rstest::rstest;
 
     #[rstest]
-    #[case("conversation between two users", vec![Message::new(1, "npub1234", "npub2134", "Hello, Bob"), Message::new(2, "npub2134", "npub1234", "Hello, Alice")], "npub1234", "npub2134", 2)]
+    #[case("conversation between two users", vec![Message::new(1, "npub1234", "Hello, Bob"), Message::new(2, "npub2134", "Hello, Alice")], "npub1234", "npub2134", 2)]
     #[case("empty conversation", Vec::new(), "npub1234", "npub2134", 0)]
-    #[case("self conversation", vec![Message::new(1, "npub1234", "npub1234", "Note to myself")], "npub1234", "npub1234", 1)]
-    #[case("conversation of different ID", vec![Message::new(1, "npub2134", "npub3124", "Hello!"), Message::new(2, "npub3124", "npub2134", "Hi!")], "npub1234", "npub2134", 0)]
+    #[case("self conversation", vec![Message::new(1, "npub1234", "Note to myself")], "npub1234", "npub1234", 1)]
+    #[case("conversation of different ID", vec![Message::new(1, "npub2134", "Hello!"), Message::new(2, "npub3124", "Hi!")], "npub1234", "npub2134", 1)]
     fn get_conversation_messages(
         #[case] _label: &str,
         #[case] messages: Vec<Message>,
@@ -42,7 +42,7 @@ mod tests {
             self.messages
                 .iter()
                 .filter( |m| {
-                    (m.sender_public_key == sender_public_key && m.recipient_public_key == recipient_public_key) || (m.sender_public_key == recipient_public_key && m.recipient_public_key == sender_public_key)
+                    (m.sender_public_key == sender_public_key) || (m.sender_public_key == recipient_public_key)
                 })
                 .cloned()
                     .collect()

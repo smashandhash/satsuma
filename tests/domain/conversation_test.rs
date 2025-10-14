@@ -14,7 +14,7 @@ mod tests {
     #[test]
     fn can_add_message_to_conversation() {
         let mut conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
-        let message = Message::new(1, "npub101", "npub202", "Hello!");
+        let message = Message::new(1, "npub101", "Hello!");
 
         conversation.add_message(message.clone());
 
@@ -26,8 +26,8 @@ mod tests {
     fn message_should_in_order() {
         let mut conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
 
-        let first_message = Message::new(1, "npub101", "npub202", "First");
-        let second_message = Message::new(2, "npub202", "npub101", "Second");
+        let first_message = Message::new(1, "npub101", "First");
+        let second_message = Message::new(2, "npub202", "Second");
 
         conversation.add_message(first_message.clone());
         conversation.add_message(second_message.clone());
@@ -47,7 +47,7 @@ mod tests {
     #[test]
     fn reject_message_from_non_participant_conversation() {
         let mut conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
-        let outsider_message = Message::new(1, "npub303", "npub101", "Hi, can I join?");
+        let outsider_message = Message::new(1, "npub303", "Hi, can I join?");
 
         assert!(!conversation.add_message(outsider_message));
         assert!(conversation.messages.is_empty());
