@@ -9,11 +9,12 @@ pub struct Message {
     pub sender_public_key: String,
     pub content: String,
     pub timestamp: DateTime<Utc>,
-    pub kind: EventKind
+    pub kind: EventKind,
+    pub tags: Vec<Vec<String>>
 }
 
 impl Message {
-    pub fn new(sender_public_key: &str, content: &str, kind: EventKind) -> Self {
+    pub fn new(sender_public_key: &str, content: &str, kind: EventKind, tags: Vec<Vec<String>>) -> Self {
         let timestamp = Utc::now();
         let formatted_id = format!("{}{}{}{}", sender_public_key.to_string(), timestamp.clone(), kind.clone() as u32, content.to_string());
         Self {
@@ -21,7 +22,8 @@ impl Message {
             sender_public_key: sender_public_key.to_string(),
             content: content.to_string(),
             timestamp: timestamp.clone(),
-            kind
+            kind,
+            tags
         }
     }
 
