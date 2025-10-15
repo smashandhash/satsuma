@@ -1,3 +1,4 @@
+use crate::domain::event_kind::EventKind;
 use chrono::{DateTime, Utc};
 use sha2::{Sha256, Digest};
 use hex;
@@ -7,11 +8,12 @@ pub struct Message {
     pub id: String,
     pub sender_public_key: String,
     pub content: String,
-    pub timestamp: DateTime<Utc>
+    pub timestamp: DateTime<Utc>,
+    pub kind: EventKind
 }
 
 impl Message {
-    pub fn new(sender_public_key: &str, content: &str) -> Self {
+    pub fn new(sender_public_key: &str, content: &str, kind: EventKind) -> Self {
         let timestamp = Utc::now();
         let formatted_id = format!("{}{}{}", sender_public_key.to_string(), timestamp.clone(), content.to_string());
         Self {
@@ -19,6 +21,7 @@ impl Message {
             sender_public_key: sender_public_key.to_string(),
             content: content.to_string(),
             timestamp: timestamp.clone(),
+            kind
         }
     }
 

@@ -1,6 +1,7 @@
 use crate::{
     domain::user::User,
-    domain::message::Message
+    domain::message::Message,
+    domain::event_kind::EventKind
 };
 
 pub struct SendMessageUseCase {
@@ -22,7 +23,7 @@ impl SendMessageUseCase {
             return Err("Message too long".to_string());
         }
 
-        let message = Message::new(&sender.public_key, trimmed_content);
+        let message = Message::new(&sender.public_key, trimmed_content, EventKind::DirectMessage);
         Ok(message)
     }
 }
