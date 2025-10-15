@@ -23,7 +23,7 @@ impl SendMessageUseCase {
             return Err("Message too long".to_string());
         }
 
-        let message = Message::new(&sender.public_key, trimmed_content, EventKind::DirectMessage, Vec::new());
+        let message = Message::new(&sender.public_key, trimmed_content, EventKind::PrivateOrGroupMessage, Vec::new());
         Ok(message)
     }
 }

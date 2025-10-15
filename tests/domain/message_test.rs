@@ -7,12 +7,12 @@ mod tests {
 
     #[test]
     fn init_message_should_do_nothing() {
-        let _message = Message::new("npub100", "Hello!", EventKind::DirectMessage, Vec::new());
+        let _message = Message::new("npub100", "Hello!", EventKind::PrivateOrGroupMessage, Vec::new());
     }
 
     #[test]
     fn edit_message_should_edited() {
-        let mut message = Message::new("npub100", "Hello", EventKind::DirectMessage, Vec::new());
+        let mut message = Message::new("npub100", "Hello", EventKind::PrivateOrGroupMessage, Vec::new());
         message.edit_content("Hello, world");
         assert_eq!(message.content, "Hello, world");
     }
@@ -20,8 +20,8 @@ mod tests {
     #[test]
     fn message_content_cannot_be_empty() {
         let cases = vec![
-            (Message::new("npub100", "", EventKind::DirectMessage, Vec::new()), true),
-            (Message::new("npub100", "Hi", EventKind::DirectMessage, Vec::new()), false),
+            (Message::new("npub100", "", EventKind::PrivateOrGroupMessage, Vec::new()), true),
+            (Message::new("npub100", "Hi", EventKind::PrivateOrGroupMessage, Vec::new()), false),
         ];
 
         for (message, expected) in cases {

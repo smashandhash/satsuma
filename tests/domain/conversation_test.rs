@@ -15,7 +15,7 @@ mod tests {
     #[test]
     fn can_add_message_to_conversation() {
         let mut conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
-        let message = Message::new("npub101", "Hello!", EventKind::DirectMessage, Vec::new());
+        let message = Message::new("npub101", "Hello!", EventKind::PrivateOrGroupMessage, Vec::new());
 
         conversation.add_message(message.clone());
 
@@ -27,8 +27,8 @@ mod tests {
     fn message_should_in_order() {
         let mut conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
 
-        let first_message = Message::new("npub101", "First", EventKind::DirectMessage, Vec::new());
-        let second_message = Message::new("npub202", "Second", EventKind::DirectMessage, Vec::new());
+        let first_message = Message::new("npub101", "First", EventKind::PrivateOrGroupMessage, Vec::new());
+        let second_message = Message::new("npub202", "Second", EventKind::PrivateOrGroupMessage, Vec::new());
 
         conversation.add_message(first_message.clone());
         conversation.add_message(second_message.clone());
@@ -48,7 +48,7 @@ mod tests {
     #[test]
     fn reject_message_from_non_participant_conversation() {
         let mut conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
-        let outsider_message = Message::new("npub303", "Hi, can I join?", EventKind::DirectMessage, Vec::new());
+        let outsider_message = Message::new("npub303", "Hi, can I join?", EventKind::PrivateOrGroupMessage, Vec::new());
 
         assert!(!conversation.add_message(outsider_message));
         assert!(conversation.messages.is_empty());
