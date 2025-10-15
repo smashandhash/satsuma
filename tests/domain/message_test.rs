@@ -4,12 +4,12 @@ mod tests {
 
     #[test]
     fn init_message_should_do_nothing() {
-        let _message = Message::new(1, "npub100", "Hello!");
+        let _message = Message::new("npub100", "Hello!");
     }
 
     #[test]
     fn edit_message_should_edited() {
-        let mut message = Message::new(1, "npub100", "Hello");
+        let mut message = Message::new("npub100", "Hello");
         message.edit_content("Hello, world");
         assert_eq!(message.content, "Hello, world");
     }
@@ -17,8 +17,8 @@ mod tests {
     #[test]
     fn message_content_cannot_be_empty() {
         let cases = vec![
-            (Message::new(2, "npub100", ""), true),
-            (Message::new(3, "npub100", "Hi"), false),
+            (Message::new("npub100", ""), true),
+            (Message::new("npub100", "Hi"), false),
         ];
 
         for (message, expected) in cases {

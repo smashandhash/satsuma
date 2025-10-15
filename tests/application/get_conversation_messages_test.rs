@@ -8,10 +8,10 @@ mod tests {
     use rstest::rstest;
 
     #[rstest]
-    #[case("conversation between two users", vec![Message::new(1, "npub1234", "Hello, Bob"), Message::new(2, "npub2134", "Hello, Alice")], "npub1234", "npub2134", 2)]
+    #[case("conversation between two users", vec![Message::new("npub1234", "Hello, Bob"), Message::new("npub2134", "Hello, Alice")], "npub1234", "npub2134", 2)]
     #[case("empty conversation", Vec::new(), "npub1234", "npub2134", 0)]
-    #[case("self conversation", vec![Message::new(1, "npub1234", "Note to myself")], "npub1234", "npub1234", 1)]
-    #[case("conversation of different ID", vec![Message::new(1, "npub2134", "Hello!"), Message::new(2, "npub3124", "Hi!")], "npub1234", "npub2134", 1)]
+    #[case("self conversation", vec![Message::new("npub1234", "Note to myself")], "npub1234", "npub1234", 1)]
+    #[case("conversation of different ID", vec![Message::new("npub2134", "Hello!"), Message::new("npub3124", "Hi!")], "npub1234", "npub2134", 1)]
     fn get_conversation_messages(
         #[case] _label: &str,
         #[case] messages: Vec<Message>,

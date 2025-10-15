@@ -22,7 +22,7 @@ impl SendMessageUseCase {
             return Err("Message too long".to_string());
         }
 
-        let message = Message::new(1, &sender.public_key, trimmed_content);
+        let message = Message::new(&sender.public_key, trimmed_content);
         Ok(message)
     }
 }
