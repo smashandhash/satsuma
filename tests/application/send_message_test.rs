@@ -61,12 +61,12 @@ mod tests {
     #[test]
     fn send_message_with_recent_timestamp() {
         let (use_case, sender) = make_sut(200);
-        let time_now = Utc::now();
+        let time_now = Utc::now().timestamp() as u64;
 
         let result = use_case.execute(&sender, "Hello");
 
         assert!(result.is_ok());
         let message = result.unwrap();
-        assert!((time_now - message.timestamp).num_seconds().abs() < 5);
+        assert!((time_now as i64 - message.created_at as i64).abs() <= 1);
     }
 }
