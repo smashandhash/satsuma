@@ -2,12 +2,13 @@
 mod tests {
     use satsuma::{
         application::send_message::SendMessageUseCase,
+        application::send_message::NostrSendMessageUseCase,
         domain::user::User
     };
     use chrono::Utc;
 
-    fn make_sut(max_length: usize) -> (SendMessageUseCase, User) {
-        let use_case = SendMessageUseCase::new(max_length);
+    fn make_sut(max_length: usize) -> (NostrSendMessageUseCase, User) {
+        let use_case = NostrSendMessageUseCase { max_length: max_length };
         let sender = User::new("npub1", "Alice");
         (use_case, sender)
     }

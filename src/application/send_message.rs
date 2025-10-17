@@ -4,16 +4,16 @@ use crate::{
     domain::event_kind::EventKind
 };
 
-pub struct SendMessageUseCase {
-    max_length: usize,
+pub trait SendMessageUseCase {
+    fn execute(&self, sender: &User, content: &str) -> Result<Message, String>;
 }
 
-impl SendMessageUseCase {
-    pub fn new(max_length: usize) -> Self {
-        Self { max_length }
-    }
+pub struct NostrSendMessageUseCase {
+    pub max_length: usize,
+}
 
-    pub fn execute(&self, sender: &User, content: &str) -> Result<Message, String> {
+impl SendMessageUseCase for NostrSendMessageUseCase {
+    fn execute(&self, sender: &User, content: &str) -> Result<Message, String> {
         let trimmed_content = content.trim();
         if trimmed_content.is_empty() {
             return Err("Sender cannot send empty message".to_string());
