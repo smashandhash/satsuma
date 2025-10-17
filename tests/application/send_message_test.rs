@@ -2,6 +2,7 @@
 mod tests {
     use satsuma::{
         application::send_message::SendMessageUseCase,
+        application::send_message::SendMessageUseCaseError,
         application::send_message::NostrSendMessageUseCase,
         domain::user::User
     };
@@ -29,7 +30,7 @@ mod tests {
         let result = use_case.execute(&sender,"");
 
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "Sender cannot send empty message");
+        assert_eq!(result.unwrap_err(), SendMessageUseCaseError::EmptyMessage);
     }
 
     #[test]
@@ -48,7 +49,7 @@ mod tests {
         let result = use_case.execute(&sender, " ");
 
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "Sender cannot send empty message");
+        assert_eq!(result.unwrap_err(), SendMessageUseCaseError::EmptyMessage);
     }
 
     #[test]
@@ -56,7 +57,7 @@ mod tests {
         let (use_case, sender) = make_sut(8);
         let result = use_case.execute(&sender, "Hello, Bob");
 
-        assert_eq!(result.unwrap_err(), "Message too long".to_string());
+        assert_eq!(result.unwrap_err(), SendMessageUseCaseError::MessageTooLong);
     }
 
     #[test]
