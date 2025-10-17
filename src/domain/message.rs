@@ -1,5 +1,5 @@
 use super::{
-    generate_event_id::generate_event_id,
+    services::generate_event_id::generate_event_id,
     event_kind::EventKind
 };
 use chrono::Utc;
