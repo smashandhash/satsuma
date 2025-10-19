@@ -6,13 +6,14 @@ mod tests {
         domain::event_kind::EventKind,
         infrastructure::message_repository::MessageRepository
     };
+    use chrono::Utc;
     use rstest::rstest;
 
     #[rstest]
-    #[case("conversation between two users", vec![Message::new("npub1234", "Hello, Bob", EventKind::PrivateOrGroupMessage, Vec::new()), Message::new("npub2134", "Hello, Alice", EventKind::PrivateOrGroupMessage, Vec::new())], "npub1234", "npub2134", 2)]
+    #[case("conversation between two users", vec![Message::new("id1".to_string(), "npub1234".to_string(), "Hello, Bob".to_string(), Utc::now().timestamp() as u64, EventKind::PrivateOrGroupMessage, Vec::new()), Message::new("id2".to_string(), "npub2134".to_string(), "Hello, Alice".to_string(), Utc::now().timestamp() as u64, EventKind::PrivateOrGroupMessage, Vec::new())], "npub1234", "npub2134", 2)]
     #[case("empty conversation", Vec::new(), "npub1234", "npub2134", 0)]
-    #[case("self conversation", vec![Message::new("npub1234", "Note to myself", EventKind::PrivateOrGroupMessage, Vec::new())], "npub1234", "npub1234", 1)]
-    #[case("conversation of different ID", vec![Message::new("npub2134", "Hello!", EventKind::PrivateOrGroupMessage, Vec::new()), Message::new("npub3124", "Hi!", EventKind::PrivateOrGroupMessage, Vec::new())], "npub1234", "npub2134", 1)]
+    #[case("self conversation", vec![Message::new("id1".to_string(), "npub1234".to_string(), "Note to myself".to_string(), Utc::now().timestamp() as u64, EventKind::PrivateOrGroupMessage, Vec::new())], "npub1234", "npub1234", 1)]
+    #[case("conversation of different ID", vec![Message::new("id1".to_string(), "npub2134".to_string(), "Hello!".to_string(), Utc::now().timestamp() as u64, EventKind::PrivateOrGroupMessage, Vec::new()), Message::new("id2".to_string(), "npub3124".to_string(), "Hi!".to_string(), Utc::now().timestamp() as u64, EventKind::PrivateOrGroupMessage, Vec::new())], "npub1234", "npub2134", 1)]
     fn get_conversation_messages(
         #[case] _label: &str,
         #[case] messages: Vec<Message>,

@@ -1,11 +1,10 @@
 use crate::{
-    domain::user::User,
     domain::message::Message,
     domain::event_kind::EventKind
 };
 
 pub trait SendMessageUseCase {
-    fn execute(&self, sender: &User, content: &str) -> Result<Message, SendMessageUseCaseError>;
+    fn execute(&self, id: &str, sender_public_key: &str, content: &str, created_at: &u64, kind: &u32, tags: &Vec<Vec<String>>) -> Result<(), SendMessageUseCaseError>;
 }
 
 pub struct NostrSendMessageUseCase {
@@ -13,7 +12,7 @@ pub struct NostrSendMessageUseCase {
 }
 
 impl SendMessageUseCase for NostrSendMessageUseCase {
-    fn execute(&self, sender: &User, content: &str) -> Result<Message, SendMessageUseCaseError> {
+    fn execute(&self, id: &str, sender_public_key: &str, content: &str, created_at: &u64, kind: &u32, tags: &Vec<Vec<String>>) -> Result<(), SendMessageUseCaseError> {
         let trimmed_content = content.trim();
         if trimmed_content.is_empty() {
             return Err(SendMessageUseCaseError::EmptyMessage);
@@ -23,8 +22,8 @@ impl SendMessageUseCase for NostrSendMessageUseCase {
             return Err(SendMessageUseCaseError::MessageTooLong);
         }
 
-        let message = Message::new(&sender.public_key, trimmed_content, EventKind::PrivateOrGroupMessage, Vec::new());
-        Ok(message)
+        let _message = Message::new(id.to_string(), sender_public_key.to_string(), trimmed_content.to_string(), *created_at, EventKind::PrivateOrGroupMessage, Vec::new());
+        Ok(())
     }
 }
 
