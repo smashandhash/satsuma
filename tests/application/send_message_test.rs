@@ -23,6 +23,7 @@ mod tests {
     #[case("rejected for message has only spaces", 200, "npub100", "   ", 14, Utc::now().timestamp() as u64, Err(SendMessageUseCaseError::EmptyMessage))]
     #[case("rejected for message is too long", 8, "npub100", "Hello, Bob", 14, Utc::now().timestamp() as u64, Err(SendMessageUseCaseError::MessageTooLong))]
     #[case("rejected for message's kind not found", 200, "npub100", "Hello, Bob", 5000, Utc::now().timestamp() as u64, Err(SendMessageUseCaseError::KindNotFound("Invalid kind value: 5000".to_string())))]
+    #[case("rejected for timestamp is invalid", 200, "npub100", "Hello, Bob", 14, u64::MAX, Err(SendMessageUseCaseError::TimestampError(ValidateTimestampError::InvalidTimestamp)))]
     #[case("rejected for timestamp is far in the future", 200, "npub100", "Hello, Bob", 14, (Utc::now() + Duration::seconds(60 * 10)).timestamp() as u64, Err(SendMessageUseCaseError::TimestampError(ValidateTimestampError::TimestampTooFarInTheFuture)))]
     #[case("rejected for timestamp is too old", 200, "npub100", "Hello, Bob", 14, (Utc::now() - Duration::days(8)).timestamp() as u64, Err(SendMessageUseCaseError::TimestampError(ValidateTimestampError::TimestampTooOld)))]
     fn send_message(

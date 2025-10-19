@@ -1,9 +1,13 @@
 use chrono::{Utc, TimeZone, Duration};
 
 pub fn validate_timestamp(created_at: u64) -> Result<(), ValidateTimestampError> {
-    let now = Utc::now().timestamp();
-    let created_at_i64 = created_at as i64;
+    let now = Utc::now().timestamp() as i64;
 
+    if created_at > i64::MAX as u64 {
+        return Err(ValidateTimestampError::InvalidTimestamp)
+    }
+
+    let created_at_i64 = created_at as i64;
     let max_future_offset = Duration::seconds(60 * 5);
     let max_past_offset = Duration::days(7);
 
