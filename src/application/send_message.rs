@@ -22,7 +22,10 @@ impl SendMessageUseCase for NostrSendMessageUseCase {
             return Err(SendMessageUseCaseError::MessageTooLong);
         }
 
-        let _message = Message::new(id.to_string(), sender_public_key.to_string(), trimmed_content.to_string(), *created_at, EventKind::PrivateOrGroupMessage, Vec::new());
+        let event_kind = EventKind::get_event_kind(*kind)
+            .map_err(|e| SendMessageUseCaseError::KindNotFound(e))?;
+
+        let _message = Message::new(id.to_string(), sender_public_key.to_string(), trimmed_content.to_string(), *created_at, event_kind, tags.clone());
         Ok(())
     }
 }
@@ -30,5 +33,6 @@ impl SendMessageUseCase for NostrSendMessageUseCase {
 #[derive(Debug, PartialEq)]
 pub enum SendMessageUseCaseError {
     EmptyMessage,
-    MessageTooLong
+    MessageTooLong,
+    KindNotFound(String)
 }
