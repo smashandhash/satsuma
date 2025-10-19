@@ -5,9 +5,10 @@ mod tests {
         application::send_message::SendMessageUseCaseError,
         application::send_message::NostrSendMessageUseCase,
         domain::user::User,
-        domain::services::generate_event_id::generate_event_id
+        domain::services::generate_event_id::generate_event_id,
+        domain::services::validate_timestamp::ValidateTimestampError
     };
-    use chrono::Utc;
+    use chrono::{Utc, Duration};
     use rstest::rstest;
 
     fn make_sut(max_length: usize) -> (NostrSendMessageUseCase, User) {
@@ -17,19 +18,20 @@ mod tests {
     }
 
     #[rstest]
-    #[case("send message to another user", 200, "npub100", "Hello, Bob!", 14, Ok(()))]
-    #[case("rejected for empty message", 200, "npub100", "", 14, Err(SendMessageUseCaseError::EmptyMessage))]
-    #[case("rejected for message has only spaces", 200, "npub100", "   ", 14, Err(SendMessageUseCaseError::EmptyMessage))]
-    #[case("rejected for message is too long", 8, "npub100", "Hello, Bob", 14, Err(SendMessageUseCaseError::MessageTooLong))]
-    #[case("rejected for message's kind not found", 200, "npub100", "Hello, Bob", 5000, Err(SendMessageUseCaseError::KindNotFound("Invalid kind value: 5000".to_string())))]
+    #[case("send message to another user", 200, "npub100", "Hello, Bob!", 14, Utc::now().timestamp() as u64, Ok(()))]
+    #[case("rejected for empty message", 200, "npub100", "", 14, Utc::now().timestamp() as u64, Err(SendMessageUseCaseError::EmptyMessage))]
+    #[case("rejected for message has only spaces", 200, "npub100", "   ", 14, Utc::now().timestamp() as u64, Err(SendMessageUseCaseError::EmptyMessage))]
+    #[case("rejected for message is too long", 8, "npub100", "Hello, Bob", 14, Utc::now().timestamp() as u64, Err(SendMessageUseCaseError::MessageTooLong))]
+    #[case("rejected for message's kind not found", 200, "npub100", "Hello, Bob", 5000, Utc::now().timestamp() as u64, Err(SendMessageUseCaseError::KindNotFound("Invalid kind value: 5000".to_string())))]
+    #[case("rejected for timestamp is too old", 200, "npub100", "Hello, Bob", 14, (Utc::now() - Duration::days(8)).timestamp() as u64, Err(SendMessageUseCaseError::TimestampError(ValidateTimestampError::TimestampTooOld)))]
     fn send_message(
         #[case] _label: &str,
         #[case] max_length: usize,
         #[case] public_key: &str,
         #[case] content: &str,
         #[case] kind: u32,
+        #[case] created_at: u64,
         #[case] expected: Result<(), SendMessageUseCaseError>) {
-        let created_at = Utc::now().timestamp() as u64;
         let id = generate_event_id(public_key, created_at.clone(), kind, &Vec::new(), content);
         let use_case = NostrSendMessageUseCase { max_length };
         let result = use_case.execute(&id, public_key, content, &created_at, &kind, &Vec::new());

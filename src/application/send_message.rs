@@ -1,6 +1,8 @@
 use crate::{
     domain::message::Message,
-    domain::event_kind::EventKind
+    domain::event_kind::EventKind,
+    domain::services::validate_timestamp::validate_timestamp,
+    domain::services::validate_timestamp::ValidateTimestampError
 };
 
 pub trait SendMessageUseCase {
@@ -13,6 +15,8 @@ pub struct NostrSendMessageUseCase {
 
 impl SendMessageUseCase for NostrSendMessageUseCase {
     fn execute(&self, id: &str, sender_public_key: &str, content: &str, created_at: &u64, kind: &u32, tags: &Vec<Vec<String>>) -> Result<(), SendMessageUseCaseError> {
+        validate_timestamp(*created_at).map_err(|e| SendMessageUseCaseError::TimestampError(e))?;
+
         let trimmed_content = content.trim();
         if trimmed_content.is_empty() {
             return Err(SendMessageUseCaseError::EmptyMessage);
@@ -34,5 +38,6 @@ impl SendMessageUseCase for NostrSendMessageUseCase {
 pub enum SendMessageUseCaseError {
     EmptyMessage,
     MessageTooLong,
-    KindNotFound(String)
+    KindNotFound(String),
+    TimestampError(ValidateTimestampError)
 }
