@@ -23,6 +23,7 @@ mod tests {
     #[case("rejected for timestamp is far in the future", 200, &VALID_PUBKEY, "Hello, Bob", 14, (Utc::now() + Duration::seconds(60 * 10)).timestamp() as u64, Err(SendMessageUseCaseError::TimestampError(ValidateTimestampError::TimestampTooFarInTheFuture)))]
     #[case("rejected for timestamp is too old", 200, &VALID_PUBKEY, "Hello, Bob", 14, (Utc::now() - Duration::days(8)).timestamp() as u64, Err(SendMessageUseCaseError::TimestampError(ValidateTimestampError::TimestampTooOld)))]
     #[case("rejected for invalid public key's length", 200, "npub100", "Hello", 14, Utc::now().timestamp() as u64, Err(SendMessageUseCaseError::PublicKeyError(ValidatePublicKeyError::InvalidPublicKeyLength)))]
+    #[case("rejected for public key isn't-hex encoded", 200, "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz", "Hello", 14, Utc::now().timestamp() as u64, Err(SendMessageUseCaseError::PublicKeyError(ValidatePublicKeyError::PublicKeyNotHexEncoded)))]
     fn send_message(
         #[case] _label: &str,
         #[case] max_length: usize,
