@@ -1,6 +1,7 @@
 use super::event_kind::EventKind;
+use serde::Deserialize;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Clone, PartialEq)]
 pub struct Message {
     pub id: String,
     pub sender_public_key: String,

@@ -1,4 +1,6 @@
-#[derive(Debug, Clone, PartialEq)]
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize, Clone, PartialEq)]
 #[repr(u32)]
 pub enum EventKind {
     Metadata = 0,
