@@ -2,11 +2,11 @@
 mod tests {
     use satsuma::domain::{
         message::Message,
-        event_kind::EventKind,
-        services::generate_event_id::generate_event_id
+        event_kind::EventKind
     };
     use chrono::Utc;
     use rstest::rstest;
+    use crate::helper::generate_event_id::generate_event_id;
 
     #[rstest]
     #[case("message successfully edited", "npub100", "Hello", None, false)]

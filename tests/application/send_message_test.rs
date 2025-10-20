@@ -4,10 +4,10 @@ mod tests {
         application::send_message::SendMessageUseCase,
         application::send_message::SendMessageUseCaseError,
         application::send_message::NostrSendMessageUseCase,
-        domain::services::generate_event_id::generate_event_id,
         domain::services::validate_timestamp::ValidateTimestampError,
         domain::services::validate_public_key::ValidatePublicKeyError
     };
+    use crate::helper::generate_event_id::generate_event_id;
     use chrono::{Utc, Duration};
     use rstest::rstest;
 
