@@ -1,9 +1,11 @@
 #[cfg(test)]
 mod tests {
     use satsuma::{
-        application::send_message::SendMessageUseCase,
-        application::send_message::SendMessageUseCaseError,
-        application::send_message::NostrSendMessageUseCase,
+        application::send_message::{
+            SendMessageUseCase,
+            SendMessageUseCaseError,
+            NostrSendMessageUseCase,
+        },
         domain::message::Message,
         domain::services::{
             validate_timestamp::ValidateTimestampError,
@@ -44,7 +46,7 @@ mod tests {
             id = mocked_id;
         }
         let use_case = NostrSendMessageUseCase { max_length };
-        let message = Message::new(id, public_key.to_string(), content.to_string(), created_at, kind, Vec::new());
+        let message = Message::new(id, public_key.to_string(), content.to_string(), created_at, kind, Vec::new(), "".to_string());
         let result = use_case.execute(message);
 
         assert_eq!(result, expected);

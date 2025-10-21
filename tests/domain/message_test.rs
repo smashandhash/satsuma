@@ -18,7 +18,7 @@ mod tests {
         let created_at = Utc::now().timestamp() as u64;
         let kind = 14;
         let id = generate_event_id(&public_key, created_at.clone(), kind, &Vec::new(), &content);
-        let mut message = Message::new(id, public_key, content, created_at.clone(), kind.clone(), Vec::new());
+        let mut message = Message::new(id, public_key, content, created_at.clone(), kind.clone(), Vec::new(), "".to_string());
 
         if let Some(new_content) = new_content {
             message.edit_content(&new_content);
