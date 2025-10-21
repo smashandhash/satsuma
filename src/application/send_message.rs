@@ -1,6 +1,8 @@
 use crate::{
-    domain::message::Message,
-    domain::event_kind::EventKind,
+    domain::{
+        message::Message,
+        event::Event
+    },
     domain::services::validate_timestamp::{
         validate_timestamp,
         ValidateTimestampError
@@ -8,11 +10,19 @@ use crate::{
     domain::services::validate_public_key::{
         validate_public_key,
         ValidatePublicKeyError
+    },
+    domain::services::validate_event_id::{
+        validate_event_id,
+        ValidateEventIDError
+    },
+    domain::services::validate_kind::{
+        validate_kind,
+        ValidateKindError
     }
 };
 
 pub trait SendMessageUseCase {
-    fn execute(&self, id: &str, sender_public_key: &str, content: &str, created_at: &u64, kind: &u32, tags: &Vec<Vec<String>>) -> Result<(), SendMessageUseCaseError>;
+    fn execute(&self, message: Message) -> Result<(), SendMessageUseCaseError>;
 }
 
 pub struct NostrSendMessageUseCase {
@@ -20,12 +30,12 @@ pub struct NostrSendMessageUseCase {
 }
 
 impl SendMessageUseCase for NostrSendMessageUseCase {
-    fn execute(&self, id: &str, sender_public_key: &str, content: &str, created_at: &u64, kind: &u32, tags: &Vec<Vec<String>>) -> Result<(), SendMessageUseCaseError> {
-        validate_timestamp(*created_at).map_err(|e| SendMessageUseCaseError::TimestampError(e))?;
+    fn execute(&self, message: Message) -> Result<(), SendMessageUseCaseError> {
+        validate_public_key(&message.sender_public_key).map_err(|e| SendMessageUseCaseError::PublicKeyError(e))?;
+        validate_event_id(&Event::from(message.clone())).map_err(|e| SendMessageUseCaseError::EventIDError(e))?;
+        validate_timestamp(message.created_at).map_err(|e| SendMessageUseCaseError::TimestampError(e))?;
 
-        validate_public_key(sender_public_key).map_err(|e| SendMessageUseCaseError::PublicKeyError(e))?;
-
-        let trimmed_content = content.trim();
+        let trimmed_content = message.content.trim();
         if trimmed_content.is_empty() {
             return Err(SendMessageUseCaseError::EmptyMessage);
         }
@@ -34,10 +44,8 @@ impl SendMessageUseCase for NostrSendMessageUseCase {
             return Err(SendMessageUseCaseError::MessageTooLong);
         }
 
-        let event_kind = EventKind::get_event_kind(*kind)
-            .map_err(|e| SendMessageUseCaseError::KindNotFound(e))?;
+        validate_kind(message.kind).map_err(|e| SendMessageUseCaseError::KindError(e))?;
 
-        let _message = Message::new(id.to_string(), sender_public_key.to_string(), trimmed_content.to_string(), *created_at, event_kind, tags.clone());
         Ok(())
     }
 }
@@ -46,7 +54,8 @@ impl SendMessageUseCase for NostrSendMessageUseCase {
 pub enum SendMessageUseCaseError {
     EmptyMessage,
     MessageTooLong,
-    KindNotFound(String),
+    KindError(ValidateKindError),
     TimestampError(ValidateTimestampError),
-    PublicKeyError(ValidatePublicKeyError)
+    PublicKeyError(ValidatePublicKeyError),
+    EventIDError(ValidateEventIDError)
 }

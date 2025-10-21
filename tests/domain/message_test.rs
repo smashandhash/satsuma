@@ -1,9 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use satsuma::domain::{
-        message::Message,
-        event_kind::EventKind
-    };
+    use satsuma::domain::message::Message;
     use chrono::Utc;
     use rstest::rstest;
     use crate::helper::generate_event_id::generate_event_id;
@@ -19,8 +16,8 @@ mod tests {
         #[case] new_content: Option<String>,
         #[case] is_empty: bool) {
         let created_at = Utc::now().timestamp() as u64;
-        let kind = EventKind::PrivateOrGroupMessage;
-        let id = generate_event_id(&public_key, created_at.clone(), kind.clone() as u32, &Vec::new(), &content);
+        let kind = 14;
+        let id = generate_event_id(&public_key, created_at.clone(), kind, &Vec::new(), &content);
         let mut message = Message::new(id, public_key, content, created_at.clone(), kind.clone(), Vec::new());
 
         if let Some(new_content) = new_content {
