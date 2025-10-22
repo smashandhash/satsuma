@@ -11,9 +11,9 @@ use crate::{
         validate_public_key,
         ValidatePublicKeyError
     },
-    domain::services::validate_event_id::{
-        validate_event_id,
-        ValidateEventIDError
+    domain::services::event_id_validator::{
+        EventIDValidator,
+        EventIDValidatorError
     },
     domain::services::validate_kind::{
         validate_kind,
@@ -29,15 +29,16 @@ pub trait SendMessageUseCase {
     fn execute(&self, message: Message) -> Result<(), SendMessageUseCaseError>;
 }
 
-pub struct NostrSendMessageUseCase<V: SignatureVerifier> {
+pub struct NostrSendMessageUseCase<EIV: EventIDValidator, SV: SignatureVerifier> {
     pub max_length: usize,
-    pub signature_verifier: V
+    pub event_id_validator: EIV,
+    pub signature_verifier: SV
 }
 
-impl<V: SignatureVerifier> SendMessageUseCase for NostrSendMessageUseCase<V> {
+impl<EIV: EventIDValidator, SV: SignatureVerifier> SendMessageUseCase for NostrSendMessageUseCase<EIV, SV> {
     fn execute(&self, message: Message) -> Result<(), SendMessageUseCaseError> {
         validate_public_key(&message.public_key).map_err(|e| SendMessageUseCaseError::PublicKeyError(e))?;
-        validate_event_id(&Event::from(message.clone())).map_err(|e| SendMessageUseCaseError::EventIDError(e))?;
+        self.event_id_validator.validate_event_id(&Event::from(message.clone())).map_err(|e| SendMessageUseCaseError::EventIDError(e))?;
         self.signature_verifier.verify_signature(&message.id, &message.public_key, &message.signature).map_err(|e| SendMessageUseCaseError::SignatureError(e))?;
         validate_timestamp(message.created_at).map_err(|e| SendMessageUseCaseError::TimestampError(e))?;
 
@@ -63,6 +64,6 @@ pub enum SendMessageUseCaseError {
     KindError(ValidateKindError),
     TimestampError(ValidateTimestampError),
     PublicKeyError(ValidatePublicKeyError),
-    EventIDError(ValidateEventIDError),
+    EventIDError(EventIDValidatorError),
     SignatureError(SignatureVerifierError)
 }
