@@ -19,9 +19,9 @@ use crate::{
         validate_kind,
         ValidateKindError
     },
-    domain::services::verify_signature::{
-        verify_signature,
-        VerifySignatureError
+    domain::services::signature_verifier::{
+        SignatureVerifier,
+        SignatureVerifierError
     }
 };
 
@@ -29,15 +29,16 @@ pub trait SendMessageUseCase {
     fn execute(&self, message: Message) -> Result<(), SendMessageUseCaseError>;
 }
 
-pub struct NostrSendMessageUseCase {
+pub struct NostrSendMessageUseCase<V: SignatureVerifier> {
     pub max_length: usize,
+    pub signature_verifier: V
 }
 
-impl SendMessageUseCase for NostrSendMessageUseCase {
+impl<V: SignatureVerifier> SendMessageUseCase for NostrSendMessageUseCase<V> {
     fn execute(&self, message: Message) -> Result<(), SendMessageUseCaseError> {
         validate_public_key(&message.public_key).map_err(|e| SendMessageUseCaseError::PublicKeyError(e))?;
         validate_event_id(&Event::from(message.clone())).map_err(|e| SendMessageUseCaseError::EventIDError(e))?;
-        verify_signature(&message.id, &message.public_key, &message.signature).map_err(|e| SendMessageUseCaseError::SignatureError(e))?;
+        self.signature_verifier.verify_signature(&message.id, &message.public_key, &message.signature).map_err(|e| SendMessageUseCaseError::SignatureError(e))?;
         validate_timestamp(message.created_at).map_err(|e| SendMessageUseCaseError::TimestampError(e))?;
 
         let trimmed_content = message.content.trim();
@@ -63,5 +64,5 @@ pub enum SendMessageUseCaseError {
     TimestampError(ValidateTimestampError),
     PublicKeyError(ValidatePublicKeyError),
     EventIDError(ValidateEventIDError),
-    SignatureError(VerifySignatureError)
+    SignatureError(SignatureVerifierError)
 }
