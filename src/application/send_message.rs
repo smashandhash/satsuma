@@ -15,9 +15,9 @@ use crate::{
         EventIDValidator,
         EventIDValidatorError
     },
-    domain::services::validate_kind::{
-        validate_kind,
-        ValidateKindError
+    domain::services::kind_validator::{
+        KindValidator,
+        KindValidatorError
     },
     domain::services::signature_verifier::{
         SignatureVerifier,
@@ -29,15 +29,17 @@ pub trait SendMessageUseCase {
     fn execute(&self, message: Message) -> Result<(), SendMessageUseCaseError>;
 }
 
-pub struct NostrSendMessageUseCase<EIV: EventIDValidator, SV: SignatureVerifier> {
+pub struct NostrSendMessageUseCase<KV: KindValidator, EIV: EventIDValidator, SV: SignatureVerifier> {
     pub max_length: usize,
+    pub kind_validator: KV,
     pub event_id_validator: EIV,
     pub signature_verifier: SV
 }
 
-impl<EIV: EventIDValidator, SV: SignatureVerifier> SendMessageUseCase for NostrSendMessageUseCase<EIV, SV> {
+impl<KV: KindValidator, EIV: EventIDValidator, SV: SignatureVerifier> SendMessageUseCase for NostrSendMessageUseCase<KV, EIV, SV> {
     fn execute(&self, message: Message) -> Result<(), SendMessageUseCaseError> {
         validate_public_key(&message.public_key).map_err(|e| SendMessageUseCaseError::PublicKeyError(e))?;
+        self.kind_validator.validate_kind(message.kind).map_err(|e| SendMessageUseCaseError::KindError(e))?;
         self.event_id_validator.validate_event_id(&Event::from(message.clone())).map_err(|e| SendMessageUseCaseError::EventIDError(e))?;
         self.signature_verifier.verify_signature(&message.id, &message.public_key, &message.signature).map_err(|e| SendMessageUseCaseError::SignatureError(e))?;
         validate_timestamp(message.created_at).map_err(|e| SendMessageUseCaseError::TimestampError(e))?;
@@ -51,8 +53,6 @@ impl<EIV: EventIDValidator, SV: SignatureVerifier> SendMessageUseCase for NostrS
             return Err(SendMessageUseCaseError::MessageTooLong);
         }
 
-        validate_kind(message.kind).map_err(|e| SendMessageUseCaseError::KindError(e))?;
-
         Ok(())
     }
 }
@@ -61,7 +61,7 @@ impl<EIV: EventIDValidator, SV: SignatureVerifier> SendMessageUseCase for NostrS
 pub enum SendMessageUseCaseError {
     EmptyMessage,
     MessageTooLong,
-    KindError(ValidateKindError),
+    KindError(KindValidatorError),
     TimestampError(ValidateTimestampError),
     PublicKeyError(ValidatePublicKeyError),
     EventIDError(EventIDValidatorError),
