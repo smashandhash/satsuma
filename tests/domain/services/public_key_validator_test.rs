@@ -15,4 +15,14 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), PublicKeyValidatorError::InvalidPublicKeyLength);
     }
+
+    #[test]
+    fn public_key_not_hex_encoded() {
+        let public_key = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";
+        let sut = DefaultPublicKeyValidator;
+        let result = sut.validate_public_key(public_key);
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), PublicKeyValidatorError::PublicKeyNotHexEncoded);
+    }
 }
