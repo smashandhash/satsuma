@@ -1,1 +1,2 @@
 mod public_key_validator_test;
+mod event_id_validator_test;
