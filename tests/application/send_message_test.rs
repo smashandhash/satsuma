@@ -16,7 +16,6 @@ mod tests {
         }
     };
     use crate::helper::{
-        generate_event_id::generate_event_id,
         public_key_validator_stub::PublicKeyValidatorStub,
         timestamp_validator_stub::TimestampValidatorStub,
         kind_validator_stub::KindValidatorStub,
@@ -48,7 +47,7 @@ mod tests {
         #[case] event_id_simulated_error: Option<EventIDValidatorError>,
         #[case] signature_simulated_error: Option<SignatureVerifierError>,
         #[case] expected: Result<(), SendMessageUseCaseError>) {
-        let id = generate_event_id("", 0, 0, &Vec::new(), content);
+        let id = "id".to_string();
         let public_key_validator = PublicKeyValidatorStub { simulated_error: public_key_simulated_error };
         let timestamp_validator = TimestampValidatorStub { simulated_error: timestamp_simulated_error };
         let kind_validator = KindValidatorStub { simulated_error: kind_simulated_error };
