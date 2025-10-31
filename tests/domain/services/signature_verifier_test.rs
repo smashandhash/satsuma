@@ -10,6 +10,7 @@ mod tests {
     #[rstest]
     #[case("Invalid ID Hex", Some("id".to_string()), None, None, SignatureVerifierError::InvalidIDHex)]
     #[case("Invalid Public Key Hex", None, Some("public_key".to_string()), None, SignatureVerifierError::InvalidPublicKeyHex)]
+    #[case("Invalid Signature Hex", None, None, Some("signature".to_string()), SignatureVerifierError::InvalidSignatureHex)]
     fn signature_verifier_errors(
         #[case] _label: &str,
         #[case] mocked_id: Option<String>,
@@ -18,7 +19,7 @@ mod tests {
         #[case] expected_error: SignatureVerifierError
         ) {
         let mut id = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".to_string();
-        let mut public_key = "public_key".to_string();
+        let mut public_key = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".to_string();
         let mut signature = "signature".to_string();
 
         if let Some(mocked_id) = mocked_id {
