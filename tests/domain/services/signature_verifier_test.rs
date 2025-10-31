@@ -12,6 +12,7 @@ mod tests {
     #[case("Invalid Public Key Hex", None, Some("public_key".to_string()), None, SignatureVerifierError::InvalidPublicKeyHex)]
     #[case("Invalid Signature Hex", None, None, Some("signature".to_string()), SignatureVerifierError::InvalidSignatureHex)]
     #[case("Invalid Public Key Format", None, Some("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff".to_string()), None, SignatureVerifierError::InvalidPublicKeyFormat)]
+    #[case("Forged or Malformed Signature", None, None, Some("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".to_string()), SignatureVerifierError::ForgedOrMalformedSignature)]
     fn signature_verifier_errors(
         #[case] _label: &str,
         #[case] mocked_id: Option<String>,
