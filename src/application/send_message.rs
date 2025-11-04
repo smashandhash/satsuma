@@ -3,25 +3,9 @@ use crate::{
         message::Message,
         event::Event
     },
-    domain::services::public_key_validator::{
-        PublicKeyValidator,
-        PublicKeyValidatorError
-    },
-    domain::services::timestamp_validator::{
-        TimestampValidator,
-        TimestampValidatorError
-    },
-    domain::services::event_id_validator::{
-        EventIDValidator,
-        EventIDValidatorError
-    },
-    domain::services::kind_validator::{
-        KindValidator,
-        KindValidatorError
-    },
-    domain::services::signature_verifier::{
-        SignatureVerifier,
-        SignatureVerifierError
+    domain::services::nostr_event_validator::{
+        NostrEventValidator,
+        NostrEventValidatorError
     }
 };
 
@@ -29,22 +13,14 @@ pub trait SendMessageUseCase {
     fn execute(&self, message: Message) -> Result<(), SendMessageUseCaseError>;
 }
 
-pub struct NostrSendMessageUseCase<PKV: PublicKeyValidator, TV: TimestampValidator, KV: KindValidator, EIV: EventIDValidator, SV: SignatureVerifier> {
+pub struct NostrSendMessageUseCase<V: NostrEventValidator> {
     pub max_length: usize,
-    pub public_key_validator: PKV,
-    pub timestamp_validator: TV,
-    pub kind_validator: KV,
-    pub event_id_validator: EIV,
-    pub signature_verifier: SV
+    pub validator: V
 }
 
-impl<PKV: PublicKeyValidator, TV: TimestampValidator, KV: KindValidator, EIV: EventIDValidator, SV: SignatureVerifier> SendMessageUseCase for NostrSendMessageUseCase<PKV, TV, KV, EIV, SV> {
+impl<V: NostrEventValidator> SendMessageUseCase for NostrSendMessageUseCase<V> {
     fn execute(&self, message: Message) -> Result<(), SendMessageUseCaseError> {
-        self.public_key_validator.validate_public_key(&message.public_key).map_err(|e| SendMessageUseCaseError::PublicKeyError(e))?;
-        self.timestamp_validator.validate_timestamp(message.created_at).map_err(|e| SendMessageUseCaseError::TimestampError(e))?;
-        self.kind_validator.validate_kind(message.kind).map_err(|e| SendMessageUseCaseError::KindError(e))?;
-        self.event_id_validator.validate_event_id(&Event::from(message.clone())).map_err(|e| SendMessageUseCaseError::EventIDError(e))?;
-        self.signature_verifier.verify_signature(&message.id, &message.public_key, &message.signature).map_err(|e| SendMessageUseCaseError::SignatureError(e))?;
+        self.validator.validate(&Event::from(message.clone())).map_err(|e| SendMessageUseCaseError::NostrError(e))?;
 
         let trimmed_content = message.content.trim();
         if trimmed_content.is_empty() {
@@ -63,9 +39,5 @@ impl<PKV: PublicKeyValidator, TV: TimestampValidator, KV: KindValidator, EIV: Ev
 pub enum SendMessageUseCaseError {
     EmptyMessage,
     MessageTooLong,
-    KindError(KindValidatorError),
-    TimestampError(TimestampValidatorError),
-    PublicKeyError(PublicKeyValidatorError),
-    EventIDError(EventIDValidatorError),
-    SignatureError(SignatureVerifierError)
+    NostrError(NostrEventValidatorError),
 }

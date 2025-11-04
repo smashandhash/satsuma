@@ -7,56 +7,41 @@ mod tests {
             NostrSendMessageUseCase,
         },
         domain::message::Message,
-        domain::services::{
-            timestamp_validator::TimestampValidatorError,
-            public_key_validator::PublicKeyValidatorError,
-            kind_validator::KindValidatorError,
-            event_id_validator::EventIDValidatorError,
-            signature_verifier::SignatureVerifierError
-        }
     };
-    use crate::helper::{
-        public_key_validator_stub::PublicKeyValidatorStub,
-        timestamp_validator_stub::TimestampValidatorStub,
-        kind_validator_stub::KindValidatorStub,
-        event_id_validator_stub::EventIDValidatorStub,
-        signature_verifier_stub::SignatureVerifierStub
-    };
+    use crate::helper::nostr_event_validator_stub::NostrEventValidatorStub;
     use rstest::rstest;
 
+    #[test]
+    fn send_message_succeed() {
+        let id = "id".to_string();
+        let max_length = 200;
+        let content = "Hello, Bob.";
+        let validator = NostrEventValidatorStub { simulated_error: None };
+        let sut = NostrSendMessageUseCase { max_length, validator };
+
+        let message = Message::new(id, "".to_string(), content.to_string(), 0, 0, Vec::new(), "".to_string());
+        let result = sut.execute(message);
+
+        assert!(result.is_ok());
+    }
+
     #[rstest]
-    #[case("send message to another user", 200, "Hello, Bob!", None, None, None, None, None, Ok(()))]
-    #[case("rejected for empty message", 200, "", None, None, None, None, None, Err(SendMessageUseCaseError::EmptyMessage))]
-    #[case("rejected for message has only spaces", 200, "   ", None, None, None, None, None, Err(SendMessageUseCaseError::EmptyMessage))]
-    #[case("rejected for message is too long", 8, "Hello, Bob", None, None, None, None, None, Err(SendMessageUseCaseError::MessageTooLong))]
-    #[case("rejected for message's kind not found", 200, "Hello, Bob", None, None, Some(KindValidatorError::InvalidKindValue(5000)), None, None, Err(SendMessageUseCaseError::KindError(KindValidatorError::InvalidKindValue(5000))))]
-    #[case("rejected for timestamp is invalid", 200, "Hello, Bob", None, Some(TimestampValidatorError::InvalidTimestamp), None, None, None, Err(SendMessageUseCaseError::TimestampError(TimestampValidatorError::InvalidTimestamp)))]
-    #[case("rejected for timestamp is far in the future", 200, "Hello, Bob", None, Some(TimestampValidatorError::TimestampTooFarInTheFuture), None, None, None, Err(SendMessageUseCaseError::TimestampError(TimestampValidatorError::TimestampTooFarInTheFuture)))]
-    #[case("rejected for timestamp is too old", 200, "Hello, Bob", None, Some(TimestampValidatorError::TimestampTooOld), None, None, None, Err(SendMessageUseCaseError::TimestampError(TimestampValidatorError::TimestampTooOld)))]
-    #[case("rejected for invalid public key's length", 200, "Hello", Some(PublicKeyValidatorError::InvalidPublicKeyLength), None, None, None, None, Err(SendMessageUseCaseError::PublicKeyError(PublicKeyValidatorError::InvalidPublicKeyLength)))]
-    #[case("rejected for public key isn't hex-encoded", 200, "Hello", Some(PublicKeyValidatorError::PublicKeyNotHexEncoded), None, None, None, None, Err(SendMessageUseCaseError::PublicKeyError(PublicKeyValidatorError::PublicKeyNotHexEncoded)))]
-    #[case("rejected for invalid ID hex", 200, "Hello, Bob", None, None, None, None, Some(SignatureVerifierError::InvalidIDHex), Err(SendMessageUseCaseError::SignatureError(SignatureVerifierError::InvalidIDHex)))]
-    #[case("rejected for ID isn't equal to our generated ID", 200, "Hello, Bob", None, None, None, Some(EventIDValidatorError::EventIDMismatch), None, Err(SendMessageUseCaseError::EventIDError(EventIDValidatorError::EventIDMismatch)))]
-    fn send_message(
+    #[case("rejected for empty message", 200, "", SendMessageUseCaseError::EmptyMessage)]
+    #[case("rejected for message has only spaces", 200, "   ", SendMessageUseCaseError::EmptyMessage)]
+    #[case("rejected for message is too long", 8, "Hello, Bob", SendMessageUseCaseError::MessageTooLong)]
+    fn send_message_error(
         #[case] _label: &str,
         #[case] max_length: usize,
         #[case] content: &str,
-        #[case] public_key_simulated_error: Option<PublicKeyValidatorError>,
-        #[case] timestamp_simulated_error: Option<TimestampValidatorError>,
-        #[case] kind_simulated_error: Option<KindValidatorError>,
-        #[case] event_id_simulated_error: Option<EventIDValidatorError>,
-        #[case] signature_simulated_error: Option<SignatureVerifierError>,
-        #[case] expected: Result<(), SendMessageUseCaseError>) {
+        #[case] expected_error: SendMessageUseCaseError) {
         let id = "id".to_string();
-        let public_key_validator = PublicKeyValidatorStub { simulated_error: public_key_simulated_error };
-        let timestamp_validator = TimestampValidatorStub { simulated_error: timestamp_simulated_error };
-        let kind_validator = KindValidatorStub { simulated_error: kind_simulated_error };
-        let event_id_validator = EventIDValidatorStub { simulated_error: event_id_simulated_error };
-        let signature_verifier = SignatureVerifierStub { simulated_error: signature_simulated_error };
-        let use_case = NostrSendMessageUseCase { max_length, public_key_validator, timestamp_validator, kind_validator, event_id_validator, signature_verifier };
-        let message = Message::new(id, "".to_string(), content.to_string(), 0, 0, Vec::new(), "".to_string());
-        let result = use_case.execute(message);
+        let validator = NostrEventValidatorStub { simulated_error: None };
+        let sut = NostrSendMessageUseCase { max_length, validator };
 
-        assert_eq!(result, expected);
+        let message = Message::new(id, "".to_string(), content.to_string(), 0, 0, Vec::new(), "".to_string());
+        let result = sut.execute(message);
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), expected_error);
     }
 }
