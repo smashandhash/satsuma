@@ -3,3 +3,4 @@ pub mod timestamp_validator;
 pub mod kind_validator;
 pub mod signature_verifier;
 pub mod event_id_validator;
+pub mod nostr_event_validator;
