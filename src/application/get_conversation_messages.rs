@@ -3,15 +3,11 @@ use crate::{
     infrastructure::message_repository::MessageRepository
 };
 
-pub struct GetConversationMessagesUseCase<'a> {
-    repository: &'a dyn MessageRepository,
+pub struct GetConversationMessagesUseCase<R: MessageRepository> {
+    pub repository: R,
 }
 
-impl<'a> GetConversationMessagesUseCase<'a> {
-    pub fn new(repository: &'a dyn MessageRepository) -> Self {
-        Self { repository }
-    }
-
+impl<R: MessageRepository> GetConversationMessagesUseCase<R> {
     pub fn execute(&self, sender_public_key: String, recipient_public_key: String) -> Vec<Message> {
         self.repository.find_conversation(sender_public_key, recipient_public_key)
     }

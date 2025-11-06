@@ -21,7 +21,7 @@ mod tests {
         #[case] conversation_length: usize
         ) {
         let repository = MessageRepositoryStub::new(messages.clone());
-        let use_case = GetConversationMessagesUseCase::new(&repository);
+        let use_case = GetConversationMessagesUseCase { repository: repository };
 
         let conversation = use_case.execute(sender_public_key.to_string(), recipient_public_key.to_string());
 
