@@ -3,10 +3,14 @@ mod tests {
     use satsuma::{
         application::get_conversation_messages::GetConversationMessagesUseCase,
         domain::message::Message,
-        infrastructure::message_repository::MessageRepository
+        infrastructure::message_repository::{
+            MessageRepository,
+            MessageRepositoryError
+        }
     };
     use chrono::Utc;
     use rstest::rstest;
+    use async_trait::async_trait;
 
     #[rstest]
     #[case("conversation between two users", vec![Message::new("id1".to_string(), "npub1234".to_string(), "Hello, Bob".to_string(), Utc::now().timestamp() as u64, 14, Vec::new(), "".to_string()), Message::new("id2".to_string(), "npub2134".to_string(), "Hello, Alice".to_string(), Utc::now().timestamp() as u64, 14, Vec::new(), "".to_string())], "npub1234", "npub2134", 2)]
@@ -38,7 +42,12 @@ mod tests {
         }
     }
 
+    #[async_trait]
     impl MessageRepository for MessageRepositoryStub {
+        async fn send(&self, _message: &Message) -> Result<(), MessageRepositoryError> {
+            Ok(())
+        }
+
         fn find_conversation(&self, sender_public_key: String, recipient_public_key: String) -> Vec<Message> {
             self.messages
                 .iter()

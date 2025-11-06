@@ -10,6 +10,7 @@ serde = { version = "1.0.228", features = ["derive"] }
 sha2 = "0.10.9"
 hex = "0.4.3"
 secp256k1 = "0.31.1"
+async-trait = "0.1.89"
 
 [dev-dependencies]
 rstest = "0.26.1"
