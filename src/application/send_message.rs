@@ -1,12 +1,5 @@
 use crate::{
-    domain::{
-        message::Message,
-        event::Event
-    },
-    domain::services::nostr_event_validator::{
-        NostrEventValidator,
-        NostrEventValidatorError
-    },
+    domain::message::Message,
     infrastructure::message_repository::{
         MessageRepository,
         MessageRepositoryError
@@ -19,20 +12,17 @@ pub trait SendMessageUseCase {
     async fn execute(&self, message: &Message) -> Result<(), SendMessageUseCaseError>;
 }
 
-pub struct NostrSendMessageUseCase<V: NostrEventValidator, R: MessageRepository> {
-    pub validator: V,
+pub struct NostrSendMessageUseCase<R: MessageRepository> {
     pub repository: R
 }
 
-impl<V: NostrEventValidator, R: MessageRepository> NostrSendMessageUseCase<V, R> {
+impl<R: MessageRepository> NostrSendMessageUseCase<R> {
     pub const MAX_MESSAGE_LENGTH: usize = 2000;
 }
 
 #[async_trait]
-impl<V: NostrEventValidator, R: MessageRepository> SendMessageUseCase for NostrSendMessageUseCase<V, R> where V: NostrEventValidator + Send + Sync, R: MessageRepository + Send + Sync {
+impl<R: MessageRepository> SendMessageUseCase for NostrSendMessageUseCase<R> where R: MessageRepository + Send + Sync {
     async fn execute(&self, message: &Message) -> Result<(), SendMessageUseCaseError> {
-        self.validator.validate(&Event::from(message.clone())).map_err(|e| SendMessageUseCaseError::NostrError(e))?;
-
         let trimmed_content = message.content.trim();
         if trimmed_content.is_empty() {
             return Err(SendMessageUseCaseError::EmptyMessage);
@@ -50,6 +40,5 @@ impl<V: NostrEventValidator, R: MessageRepository> SendMessageUseCase for NostrS
 pub enum SendMessageUseCaseError {
     EmptyMessage,
     MessageTooLong,
-    NostrError(NostrEventValidatorError),
     RepositoryError(MessageRepositoryError)
 }
