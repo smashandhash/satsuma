@@ -16,7 +16,7 @@ impl From<Message> for Event {
             id: message.id,
             public_key: message.public_key,
             created_at: message.created_at,
-            kind: message.kind,
+            kind: 10u32,
             tags: message.tags,
             content: message.content,
             signature: message.signature

@@ -12,6 +12,7 @@ hex = "0.4.3"
 secp256k1 = "0.31.1"
 async-trait = "0.1.89"
 thiserror = "2.0.17"
+nostr-sdk = { version = "0.44.1", features = ["nip59"] }
 
 [dev-dependencies]
 rstest = "0.26.1"
