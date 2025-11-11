@@ -15,7 +15,6 @@ pub trait MessageRepository {
 
 pub struct NostrMessageRepository {
     client: Arc<Client>,
-    keys: Keys
 }
 
 #[async_trait]
@@ -26,7 +25,9 @@ impl MessageRepository for NostrMessageRepository {
                 let recipient_public_key = Keys::parse(recipient_pubkey_str)
                     .map_err(|e| MessageRepositoryError::UnknownError(e.to_string()))?.public_key();
 
-                self.client.as_ref().send_private_msg(recipient_public_key, &message.content, []).await?.map_or(Ok(()), Err(MessageRepositoryError::UnknownError("Client Error".to_string())))
+                let _ = self.client.as_ref().send_private_msg(recipient_public_key, &message.content, []).await.map_err(|e| MessageRepositoryError::UnknownError(e.to_string()));
+
+                Ok(())
             }
 
             _ => Err(MessageRepositoryError::UnsupportedMessageKind)

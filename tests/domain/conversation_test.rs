@@ -2,7 +2,10 @@
 mod tests {
     use satsuma::domain::{
         conversation::Conversation,
-        message::Message,
+        message::{
+            Message,
+            MessageKind
+        },
         user::User
     };
     use chrono::Utc;
@@ -15,7 +18,7 @@ mod tests {
     #[test]
     fn can_add_message_to_conversation() {
         let mut conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
-        let message = Message::new("generateId".to_string(), "npub101".to_string(), "Hello!".to_string(), Utc::now().timestamp() as u64, 14, Vec::new(), "".to_string());
+        let message = Message::new("generateId".to_string(), "npub101".to_string(), "Hello!".to_string(), Utc::now().timestamp() as u64, MessageKind::Direct("npub202".to_string()), Vec::new(), "".to_string());
 
         conversation.add_message(message.clone());
 
@@ -27,8 +30,8 @@ mod tests {
     fn message_should_in_order() {
         let mut conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
 
-        let first_message = Message::new("generateId".to_string(), "npub101".to_string(), "First".to_string(), Utc::now().timestamp() as u64, 14, Vec::new(), "".to_string());
-        let second_message = Message::new("generateId".to_string(), "npub202".to_string(), "Second".to_string(), Utc::now().timestamp() as u64, 14, Vec::new(), "".to_string());
+        let first_message = Message::new("generateId".to_string(), "npub101".to_string(), "First".to_string(), Utc::now().timestamp() as u64, MessageKind::Direct("npub202".to_string()), Vec::new(), "".to_string());
+        let second_message = Message::new("generateId".to_string(), "npub202".to_string(), "Second".to_string(), Utc::now().timestamp() as u64, MessageKind::Direct("npub202".to_string()), Vec::new(), "".to_string());
 
         conversation.add_message(first_message.clone());
         conversation.add_message(second_message.clone());
@@ -48,7 +51,7 @@ mod tests {
     #[test]
     fn reject_message_from_non_participant_conversation() {
         let mut conversation = Conversation::new(1, "npub101", vec!["npub101", "npub202"]);
-        let outsider_message = Message::new("generateId".to_string(), "npub303".to_string(), "Hi, can I join?".to_string(), Utc::now().timestamp() as u64, 14, Vec::new(), "".to_string());
+        let outsider_message = Message::new("generateId".to_string(), "npub303".to_string(), "Hi, can I join?".to_string(), Utc::now().timestamp() as u64, MessageKind::Direct("npub202".to_string()), Vec::new(), "".to_string());
 
         assert!(!conversation.add_message(outsider_message));
         assert!(conversation.messages.is_empty());

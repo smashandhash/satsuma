@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use satsuma::domain::message::Message;
+    use satsuma::domain::message::{
+        Message,
+        MessageKind
+    };
     use chrono::Utc;
     use rstest::rstest;
 
@@ -15,9 +18,9 @@ mod tests {
         #[case] new_content: Option<String>,
         #[case] is_empty: bool) {
         let created_at = Utc::now().timestamp() as u64;
-        let kind = 14;
+        let kind = MessageKind::Direct("npub202".to_string());
         let id = "id".to_string();
-        let mut message = Message::new(id, public_key, content, created_at.clone(), kind.clone(), Vec::new(), "".to_string());
+        let mut message = Message::new(id, public_key, content, created_at.clone(), kind, Vec::new(), "".to_string());
 
         if let Some(new_content) = new_content {
             message.edit_content(&new_content);
