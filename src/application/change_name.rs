@@ -1,10 +1,9 @@
 use crate::domain::user::User;
 use crate::infrastructure::{
-    nostr_event::NostrEvent,
     relay_publisher::RelayPublisher,
     relay_publisher::RelayPublisherError
 };
-use serde_json::json;
+use nostr_sdk::Metadata;
 
 pub trait ChangeNameUseCase {
     fn execute(&mut self, new_name: String) -> Result<(), ChangeNameUseCaseError>;
@@ -12,7 +11,7 @@ pub trait ChangeNameUseCase {
 
 pub struct NostrChangeNameUseCase<'a, R: RelayPublisher> {
     pub user: &'a mut User,
-    pub relay_publisher: &'a R,
+    pub relay_publisher: R,
 }
 
 impl<'a, R: RelayPublisher> ChangeNameUseCase for NostrChangeNameUseCase<'a, R> {
@@ -23,13 +22,9 @@ impl<'a, R: RelayPublisher> ChangeNameUseCase for NostrChangeNameUseCase<'a, R> 
 
         self.user.change_name(new_name.clone());
 
-        let content = json!({
-            "name": new_name
-        }).to_string();
-        let event = NostrEvent::new(0, content, &self.user.public_key);
-
+        let metadata = Metadata::new().name(new_name);
         self.relay_publisher
-            .publish(event)
+            .publish(&metadata)
             .map_err(|e| ChangeNameUseCaseError::SaveFailed(e))?;
 
         Ok(())

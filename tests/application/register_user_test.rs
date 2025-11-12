@@ -8,10 +8,9 @@ mod tests {
     use satsuma::domain::user::User;
     use satsuma::infrastructure::{
         local_storage::LocalStorage,
-        nostr_event::NostrEvent,
-        relay_publisher::RelayPublisher,
         relay_publisher::RelayPublisherError
     };
+    use crate::helper::relay_publisher_stub::RelayPublisherStub;
 
     #[test]
     fn register_user_creates_new_user() {
@@ -90,16 +89,6 @@ mod tests {
             } else {
                 Ok(())
             }
-        }
-    }
-
-    pub struct RelayPublisherStub {
-        simulated_error: Option<RelayPublisherError>
-    }
-
-    impl RelayPublisher for RelayPublisherStub {
-        fn publish(&self, _event: NostrEvent) -> Result<(), RelayPublisherError> {
-            self.simulated_error.clone().map_or(Ok(()), Err)
         }
     }
 }

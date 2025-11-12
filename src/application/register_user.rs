@@ -1,11 +1,10 @@
 use crate::domain::user::User;
 use crate::infrastructure::{
     local_storage::LocalStorage,
-    nostr_event::NostrEvent,
     relay_publisher::RelayPublisher,
     relay_publisher::RelayPublisherError
 };
-use serde_json::json;
+use nostr_sdk::prelude::*;
 
 pub trait RegisterUserUseCase {
     fn execute(&self, desired_name: &str) -> Result<User, RegisterUserUseCaseError>;
@@ -23,22 +22,19 @@ impl<S, R> RegisterUserUseCase for NostrRegisterUserUseCase<S, R> where S: Local
             return Err(RegisterUserUseCaseError::InvalidName);
         }
 
-        let user = User::new(&format!("npub{}", trimmed_desired_name), &trimmed_desired_name);
-
+        let keys = Keys::generate();
+        let public_key = keys.public_key().to_bech32().unwrap();
+        
+        let user = User::new(&public_key, &trimmed_desired_name);
         self.storage.save_user(&user).map_err(|e| RegisterUserUseCaseError::PersistError(e))?;
 
-        let content = json!({
-            "name": user.name,
-            "about": user.about,
-            "picture": user.picture
-        }).to_string();
-
-        let event = NostrEvent::new(0, content, &user.public_key);
-
-        self.relay_publisher
-            .publish(event)
-            .map_err(|e| RegisterUserUseCaseError::RelayFailed(e))?;
+        // TODO: Save secret key to the storage later
         
+        let metadata = Metadata::new().name(trimmed_desired_name).about("New to Nostr");
+        self.relay_publisher
+            .publish(&metadata)
+            .map_err(|e| RegisterUserUseCaseError::RelayFailed(e))?;
+
         Ok(user)
     }
 }
@@ -47,5 +43,6 @@ impl<S, R> RegisterUserUseCase for NostrRegisterUserUseCase<S, R> where S: Local
 pub enum RegisterUserUseCaseError {
     InvalidName,
     PersistError(String),
+    EventError(String),
     RelayFailed(RelayPublisherError)
 }

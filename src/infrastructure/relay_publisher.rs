@@ -1,7 +1,7 @@
-use crate::infrastructure::nostr_event::NostrEvent;
+use nostr_sdk::Metadata;
 
 pub trait RelayPublisher {
-    fn publish(&self, event: NostrEvent) -> Result<(), RelayPublisherError>;
+    fn publish(&self, metadata: &Metadata) -> Result<(), RelayPublisherError>;
 }
 
 #[derive(Clone, Debug, PartialEq)]

@@ -1,6 +1,4 @@
-use serde::Deserialize;
-
-#[derive(Debug, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Message {
     pub id: String,
     pub public_key: String,
@@ -12,7 +10,7 @@ pub struct Message {
     pub thread_id: Option<String>
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum MessageKind {
     Direct(String),
     Channel(String),
