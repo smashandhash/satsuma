@@ -25,7 +25,7 @@ impl<'a, R: RelayPublisher> ChangeNameUseCase for NostrChangeNameUseCase<'a, R> 
         let metadata = Metadata::new().name(new_name);
         self.relay_publisher
             .publish(&metadata)
-            .map_err(|e| ChangeNameUseCaseError::SaveFailed(e))?;
+            .map_err(|e| ChangeNameUseCaseError::RelayFailed(e))?;
 
         Ok(())
     }
@@ -34,5 +34,5 @@ impl<'a, R: RelayPublisher> ChangeNameUseCase for NostrChangeNameUseCase<'a, R> 
 #[derive(Debug, PartialEq)]
 pub enum ChangeNameUseCaseError {
     InvalidName,
-    SaveFailed(RelayPublisherError),
+    RelayFailed(RelayPublisherError),
 }
