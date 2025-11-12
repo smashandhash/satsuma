@@ -24,11 +24,12 @@ impl<S, R> RegisterUserUseCase for NostrRegisterUserUseCase<S, R> where S: Local
 
         let keys = Keys::generate();
         let public_key = keys.public_key().to_bech32().unwrap();
+        let secret_key = keys.secret_key().to_bech32().unwrap();
         
         let user = User::new(&public_key, &trimmed_desired_name);
         self.storage.save_user(&user).map_err(|e| RegisterUserUseCaseError::PersistError(e))?;
 
-        // TODO: Save secret key to the storage later
+        self.storage.save_secret_key(&secret_key).map_err(|e| RegisterUserUseCaseError::PersistError(e))?;
         
         let metadata = Metadata::new().name(trimmed_desired_name).about("New to Nostr");
         self.relay_publisher

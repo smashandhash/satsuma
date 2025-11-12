@@ -5,12 +5,11 @@ mod tests {
         NostrRegisterUserUseCase,
         RegisterUserUseCaseError
     };
-    use satsuma::domain::user::User;
-    use satsuma::infrastructure::{
-        local_storage::LocalStorage,
-        relay_publisher::RelayPublisherError
+    use satsuma::infrastructure::relay_publisher::RelayPublisherError;
+    use crate::helper::{
+        relay_publisher_stub::RelayPublisherStub,
+        local_storage_stub::LocalStorageStub
     };
-    use crate::helper::relay_publisher_stub::RelayPublisherStub;
 
     #[test]
     fn register_user_creates_new_user() {
@@ -75,20 +74,6 @@ mod tests {
         NostrRegisterUserUseCase {
             storage: LocalStorageStub { simulated_error: local_storage_error },
             relay_publisher: RelayPublisherStub { simulated_error: relay_publisher_error }
-        }
-    }
-
-    pub struct LocalStorageStub {
-        simulated_error: Option<String>
-    }
-
-    impl LocalStorage for LocalStorageStub {
-        fn save_user(&self, _user: &User) -> Result<(), String> {
-            if let Some(simulated_error) = &self.simulated_error {
-                Err(simulated_error.clone())
-            } else {
-                Ok(())
-            }
         }
     }
 }
