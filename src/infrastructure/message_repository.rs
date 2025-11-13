@@ -9,7 +9,12 @@ use std::sync::Arc;
 
 #[async_trait]
 pub trait MessageRepository {
-    async fn send(&self, message: &Message) -> Result<(), MessageRepositoryError>;
+    async fn send(
+        &self,
+        sender_keys: &Keys,
+        content: &str,
+        kind: MessageKind,
+    ) -> Result<Message, MessageRepositoryError>;
     fn find_conversation(&self, sender_public_key: String, recipient_public_key: String) -> Vec<Message>;
 }
 
@@ -19,19 +24,49 @@ pub struct NostrMessageRepository {
 
 #[async_trait]
 impl MessageRepository for NostrMessageRepository {
-    async fn send(&self, message: &Message) -> Result<(), MessageRepositoryError> {
-        match &message.kind {
-            MessageKind::Direct(recipient_pubkey_str) => {
-                let recipient_public_key = Keys::parse(recipient_pubkey_str)
-                    .map_err(|e| MessageRepositoryError::UnknownError(e.to_string()))?.public_key();
+    async fn send(
+        &self,
+        sender_keys: &Keys,
+        content: &str,
+        kind: MessageKind,
+    ) -> Result<Message, MessageRepositoryError> {
+        let (event_kind, tags) = match kind {
+            MessageKind::Direct(ref recipient_pubkey) => (
+                Kind::EncryptedDirectMessage,
+                vec![Tag::public_key(Keys::parse(recipient_pubkey).unwrap().public_key())],
+            ),
+            MessageKind::Thread(ref parent_id) => (
+                Kind::TextNote,
+                vec![Tag::event(EventId::from_hex(parent_id).map_err(|e| MessageRepositoryError::UnknownError(e.to_string()))?)],
+            ),
+            MessageKind::Group(ref group_id) => (
+                Kind::TextNote,
+                vec![Tag::custom("group".into(), &[group_id.clone()])]
+            ),
+            MessageKind::Channel(ref channel_id) => (
+                Kind::TextNote,
+                vec![Tag::custom("channel".into(), &[channel_id.clone()])]
+            ),
+        };
 
-                let _ = self.client.as_ref().send_private_msg(recipient_public_key, &message.content, []).await.map_err(|e| MessageRepositoryError::UnknownError(e.to_string()));
+        let mut event_builder = EventBuilder::new(event_kind, content);
+        event_builder = event_builder.tags(tags);
 
-                Ok(())
-            }
+        let event = event_builder.sign(sender_keys).await.map_err(|e| MessageRepositoryError::UnknownError(e.to_string()))?;
 
-            _ => Err(MessageRepositoryError::UnsupportedMessageKind)
-        }
+        self.client
+            .send_event(&event.clone())
+            .await
+            .map_err(|e| MessageRepositoryError::PublishError(e.to_string()))?;
+
+        let message = Message::new(
+            event.id.to_hex(),
+            sender_keys.public_key().to_string(),
+            event.content.clone(),
+            event.created_at.as_secs(),
+            kind);
+
+        Ok(message)
     }
 
     fn find_conversation(&self, _sender_public_key: String, _recipient_public_key: String) -> Vec<Message> {
@@ -51,5 +86,8 @@ pub enum MessageRepositoryError {
     UnknownError(String),
 
     #[error("UnsupportedMessageKind")]
-    UnsupportedMessageKind
+    UnsupportedMessageKind,
+
+    #[error("Publish error: {0}")]
+    PublishError(String)
 }

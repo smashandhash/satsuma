@@ -5,29 +5,24 @@ pub struct Message {
     pub content: String,
     pub created_at: u64,
     pub kind: MessageKind,
-    pub tags: Vec<Vec<String>>,
-    pub signature: String,
-    pub thread_id: Option<String>
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum MessageKind {
     Direct(String),
     Channel(String),
-    Group(String)
+    Group(String),
+    Thread(String)
 }
 
 impl Message {
-    pub fn new(id: String, public_key: String, content: String, created_at: u64, kind: MessageKind, tags: Vec<Vec<String>>, signature: String) -> Self {
+    pub fn new(id: String, public_key: String, content: String, created_at: u64, kind: MessageKind) -> Self {
         Self {
             id,
             public_key,
             content,
             created_at,
             kind,
-            tags,
-            signature,
-            thread_id: None
         }
     }
 
@@ -39,20 +34,3 @@ impl Message {
         self.content.trim().is_empty()
     }
 }
-
-/*
-impl From<Event> for Message {
-    fn from(event: Event) -> Self {
-        Self {
-            id: event.id,
-            public_key: event.public_key,
-            content: event.content,
-            created_at: event.created_at,
-            kind: event.kind,
-            tags: event.tags,
-            signature: event.signature,
-            thread_id: None
-        }
-    }
-}
-*/
