@@ -1,37 +1,27 @@
 #[cfg(test)]
 mod tests {
-    use satsuma::{
-        application::send_message::{
-            SendMessageUseCase,
-            SendMessageUseCaseError,
-            NostrSendMessageUseCase,
-        },
-        domain::message::{
-            Message,
-            MessageKind
-        }
+    use satsuma::application::send_message::{
+        SendMessageUseCase,
+        SendMessageUseCaseError,
+        NostrSendMessageUseCase,
     };
-    use crate::helper::message_repository_stub::MessageRepositoryStub;
+    use crate::helper::{
+        key_provider_stub::KeyProviderStub,
+        message_repository_stub::MessageRepositoryStub,
+        local_storage_stub::LocalStorageStub
+    };
     use rstest::rstest;
 
     #[tokio::test]
     async fn send_message_succeed() {
-        let id = "id".to_string();
         let content = "Hello, Bob.";
-        let recipient_public_key_string = "npub001".to_string();
-        let repository = MessageRepositoryStub::new(Vec::new());
-        let sut = NostrSendMessageUseCase { repository };
+        let recipient_public_key = "npub001".to_string();
+        let provider = KeyProviderStub { simulated_error: None };
+        let repository = MessageRepositoryStub::new(None, Vec::new());
+        let storage = LocalStorageStub { simulated_error: None };
+        let sut = NostrSendMessageUseCase { provider, repository, storage };
 
-        let message = Message::new(
-            id, 
-            "".to_string(), 
-            content.to_string(), 
-            0, 
-            MessageKind::Direct(recipient_public_key_string), 
-            Vec::new(), 
-            "".to_string()
-        );
-        let result = sut.execute(&message).await;
+        let result = sut.execute(content.to_string(), Some(recipient_public_key), None, None, None).await;
 
         assert!(result.is_ok());
     }
@@ -44,21 +34,13 @@ mod tests {
         #[case] _label: &str,
         #[case] content: &str,
         #[case] expected_error: SendMessageUseCaseError) {
-        let id = "id".to_string();
-        let recipient_public_key_string = "npub001".to_string();
-        let repository = MessageRepositoryStub::new(Vec::new());
-        let sut = NostrSendMessageUseCase { repository };
+        let recipient_public_key = "npub001".to_string();
+        let provider = KeyProviderStub { simulated_error: None };
+        let repository = MessageRepositoryStub::new(None, Vec::new());
+        let storage = LocalStorageStub { simulated_error: None };
+        let sut = NostrSendMessageUseCase { provider, repository, storage };
 
-        let message = Message::new(
-            id, 
-            "".to_string(), 
-            content.to_string(), 
-            0, 
-            MessageKind::Direct(recipient_public_key_string), 
-            Vec::new(), 
-            "".to_string()
-        );
-        let result = sut.execute(&message).await;
+        let result = sut.execute(content.to_string(), Some(recipient_public_key), None, None, None).await;
 
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), expected_error);

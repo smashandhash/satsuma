@@ -4,6 +4,10 @@ use crate::{
         MessageKind
     },
     infrastructure::{
+        key_provider::{
+            KeyProvider,
+            KeyProviderError
+        },
         message_repository::{
             MessageRepository,
             MessageRepositoryError
@@ -12,43 +16,44 @@ use crate::{
     }
 };
 use async_trait::async_trait;
+use nostr_sdk::prelude::*;
 
 #[async_trait]
 pub trait SendMessageUseCase {
     async fn execute(&self, 
-        sender_public_key: String,
         content: String, 
         recipient_public_key: Option<String>, 
         parent_id: Option<String>,
         channel_id: Option<String>,
-        group_id: Option<String>) -> Result<(), SendMessageUseCaseError>;
+        group_id: Option<String>) -> Result<Message, SendMessageUseCaseError>;
 }
 
-pub struct NostrSendMessageUseCase<R: MessageRepository, S: LocalStorage> {
+pub struct NostrSendMessageUseCase<K: KeyProvider, R: MessageRepository, S: LocalStorage> {
+    pub provider: K,
     pub repository: R,
     pub storage: S
 }
 
-impl<R: MessageRepository, S: LocalStorage> NostrSendMessageUseCase<R, S> {
+impl<K: KeyProvider, R: MessageRepository, S: LocalStorage> NostrSendMessageUseCase<K, R, S> {
     pub const MAX_MESSAGE_LENGTH: usize = 2000;
 }
 
 #[async_trait]
-impl<R: MessageRepository, S: LocalStorage> SendMessageUseCase for NostrSendMessageUseCase<R, S> where R: MessageRepository + Send + Sync, S: LocalStorage + Send + Sync {
+impl<K: KeyProvider, R: MessageRepository, S: LocalStorage> SendMessageUseCase for NostrSendMessageUseCase<K, R, S> where K: KeyProvider + Send + Sync, R: MessageRepository + Send + Sync, S: LocalStorage + Send + Sync {
     async fn execute(&self, 
-        sender_public_key: String, 
         content: String, 
         recipient_public_key: Option<String>,
         parent_id: Option<String>,
         channel_id: Option<String>,
-        group_id: Option<String>) -> Result<(), SendMessageUseCaseError> {
+        group_id: Option<String>) -> Result<Message, SendMessageUseCaseError> {
          let secret_key = self
             .storage
             .load_secret_key()
-            .ok_or(SendMessageUseCaseError::Unauthorized)?;
+            .map_err(|e| SendMessageUseCaseError::Unauthorized(e.to_string()))?;
 
-        let keys = Keys::parse(&secret_key)
-            .map_err(|e| SendMessageUseCaseError::InvalidKey(e.to_string()))?;
+        let keys = self.provider.parse_secret_key(&secret_key)
+            .await
+            .map_err(|e| SendMessageUseCaseError::InvalidKey(e))?;
 
         let kind = if let Some(recipient) = &recipient_public_key {
             if parent_id.is_some() {
@@ -73,19 +78,14 @@ impl<R: MessageRepository, S: LocalStorage> SendMessageUseCase for NostrSendMess
             return Err(SendMessageUseCaseError::MessageTooLong);
         }
 
-        let message = Message::new(
-            "".to_string(),
-            sender_public_key,
-            trimmed_content.to_string(),
-            chrono::Utc::now().timestamp() as u64,
-            kind.clone());
-
-        self.repository.send(&message).await.map_err(|e| SendMessageUseCaseError::RepositoryError(e))
+        self.repository.send(&keys, trimmed_content, kind).await.map_err(|e| SendMessageUseCaseError::RepositoryError(e))
     }
 }
 
 #[derive(Debug, PartialEq)]
 pub enum SendMessageUseCaseError {
+    Unauthorized(String),
+    InvalidKey(KeyProviderError),
     MissingDestination,
     EmptyMessage,
     MessageTooLong,

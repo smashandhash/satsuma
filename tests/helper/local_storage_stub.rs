@@ -19,4 +19,8 @@ impl LocalStorage for LocalStorageStub {
     fn save_secret_key(&self, _secret_key: &String) -> Result<(), String> {
         Ok(())
     }
+
+    fn load_secret_key(&self) -> Result<String, String> {
+        Ok("Secret Key".to_string())
+    }
 }
