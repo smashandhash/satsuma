@@ -1,13 +1,20 @@
 use crate::{
-    domain::conversation::Conversation,
+    domain::chat_session::{
+        ChatSession,
+        ChatSessionContext
+    },
     infrastructure::conversation_repository::ConversationRepository
 };
 
-pub struct CreateConversationUseCase<'a> {
-    repository: &'a mut dyn ConversationRepository,
+pub trait CreateDirectChatUseCase {
+    fn execute(&self)
 }
 
-impl<'a> CreateConversationUseCase<'a> {
+pub struct CreateDirectChatUseCaseImplementation<R: ConversationRepository> {
+    repository: R,
+}
+
+impl<'a> CreateDirectChatUseCase<'a> {
     pub fn new(repository: &'a mut dyn ConversationRepository) -> Self {
         Self { repository }
     }
