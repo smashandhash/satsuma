@@ -9,10 +9,8 @@ pub struct ChatSession {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ChatSessionContext {
-    Direct(String),
-    Group(String),
-    Channel(String),
-    Thread(String),
+    Root,
+    Thread { parent_message_id: String },
 }
 
 impl ChatSession {
