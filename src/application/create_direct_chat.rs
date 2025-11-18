@@ -1,21 +1,21 @@
 use crate::{
     domain::chat_container::{
         ChatContainer,
-        ChatContainerType
+        ChatContainerContext
     },
-    infrastructure::chat_session_repository::ChatSessionRepository
+    infrastructure::chat_container_repository::ChatContainerRepository
 };
 use md5::compute;
 
 pub trait CreateDirectChatUseCase {
-    fn execute(&self, sender_public_key: &str, recipient_public_key: &str) -> Result<ChatSession, CreateDirectChatUseCaseError>;
+    fn execute(&self, sender_public_key: &str, recipient_public_key: &str) -> Result<ChatContainer, CreateDirectChatUseCaseError>;
 }
 
-pub struct CreateDirectChatUseCaseImplementation<R: ChatSessionRepository> {
+pub struct CreateDirectChatUseCaseImplementation<R: ChatContainerRepository> {
     repository: R,
 }
 
-impl<R: ChatSessionRepository> CreateDirectChatUseCaseImplementation<R> {
+impl<R: ChatContainerRepository> CreateDirectChatUseCaseImplementation<R> {
     pub fn new(repository: R) -> Self {
         Self { repository }
     }
@@ -29,18 +29,19 @@ impl<R: ChatSessionRepository> CreateDirectChatUseCaseImplementation<R> {
     }
 }
 
-impl<R: ChatSessionRepository> CreateDirectChatUseCase for CreateDirectChatUseCaseImplementation<R> {
-    fn execute(&self, sender_public_key: &str, recipient_public_key: &str) -> Result<ChatSession, CreateDirectChatUseCaseError> {
+impl<R: ChatContainerRepository> CreateDirectChatUseCase for CreateDirectChatUseCaseImplementation<R> {
+    fn execute(&self, sender_public_key: &str, recipient_public_key: &str) -> Result<ChatContainer, CreateDirectChatUseCaseError> {
         if sender_public_key.is_empty() || recipient_public_key.is_empty() {
             return Err(CreateDirectChatUseCaseError::InvalidPublicKey);
         }
         let chat_container = ChatContainer::new(
             self.generate_chat_session_id(sender_public_key, recipient_public_key), 
-            ChatContainerType::Direct,
+            ChatContainerContext::Direct { other_public_key: recipient_public_key.to_string() },
+            vec![sender_public_key.to_string(), recipient_public_key.to_string()],
             Vec::new()
         );
-        self.repository.save(chat_session.clone());
-        Ok(chat_session)
+        self.repository.save(chat_container.clone());
+        Ok(chat_container)
     }
 }
 
