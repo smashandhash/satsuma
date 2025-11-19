@@ -23,7 +23,7 @@ impl<R: ChatContainerRepository> AddParticipantsToChatContainer for AddParticipa
 
         chat_container
             .add_participants(&actor_public_key, new_participant_public_keys)
-            .map_err(|e| AddParticipantsToChatContainerUseCaseError::ContainerError(e));
+            .map_err(|e| AddParticipantsToChatContainerUseCaseError::ContainerError(e))?;
 
         self.repository.save(chat_container).map_err(|e| AddParticipantsToChatContainerUseCaseError::RepositoryError(e))
     }
