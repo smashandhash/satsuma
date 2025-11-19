@@ -3,7 +3,10 @@ use crate::{
         ChatContainer,
         ChatContainerContext
     },
-    infrastructure::chat_container_repository::ChatContainerRepository
+    infrastructure::chat_container_repository::{
+        ChatContainerRepository,
+        ChatContainerRepositoryError
+    }
 };
 use md5::compute;
 
@@ -40,12 +43,17 @@ impl<R: ChatContainerRepository> CreateDirectChatUseCase for CreateDirectChatUse
             vec![sender_public_key.to_string(), recipient_public_key.to_string()],
             Vec::new()
         );
-        self.repository.save(chat_container.clone());
+
+        self.repository
+            .save(chat_container.clone())
+            .map_err(CreateDirectChatUseCaseError::RepositoryError)?;
+
         Ok(chat_container)
     }
 }
 
 #[derive(Debug, PartialEq)]
 pub enum CreateDirectChatUseCaseError {
-    InvalidPublicKey
+    InvalidPublicKey,
+    RepositoryError(ChatContainerRepositoryError)
 }
