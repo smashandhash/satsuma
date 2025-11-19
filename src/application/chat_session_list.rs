@@ -4,7 +4,7 @@ use crate::{
 };
 
 pub trait ChatSessionListUseCase {
-    fn execute(&self, user_public_key: &str) -> Vec<ChatSession>;
+    fn execute(&self, chat_session_id: String) -> Vec<ChatSession>;
 }
 
 pub struct ChatSessionListUseCaseImplementation <R: ChatSessionRepository> {
@@ -18,10 +18,7 @@ impl<R: ChatSessionRepository> ChatSessionListUseCaseImplementation <R> {
 }
 
 impl<R: ChatSessionRepository> ChatSessionListUseCase for ChatSessionListUseCaseImplementation<R> {
-    fn execute(&self, user_public_key: &str) -> Vec<ChatSession> {
-        self.repository.load(user_public_key.to_string())
-            .into_iter()
-            .filter( |chat_session| chat_session.participant_public_keys.contains(&user_public_key.to_string()) )
-            .collect()
+    fn execute(&self, chat_session_id: String) -> Vec<ChatSession> {
+        self.repository.load(chat_session_id)
     }
 }
