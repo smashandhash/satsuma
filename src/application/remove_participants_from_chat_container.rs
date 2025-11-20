@@ -21,7 +21,8 @@ impl<R: ChatContainerRepository> RemoveParticipantsFromChatContainerUseCase for 
             .map_err(|e| RemoveParticipantsFromChatContainerUseCaseError::RepositoryError(e))
             .unwrap();
 
-        chat_container.remove_participants(&actor_public_key, participant_public_keys).map_err(|e| RemoveParticipantsFromChatContainerUseCaseError::ContainerError(e));
+        chat_container.remove_participants(&actor_public_key, participant_public_keys)
+            .map_err(|e| RemoveParticipantsFromChatContainerUseCaseError::ContainerError(e))?;
 
         self.repository.save(chat_container).map_err(|e| RemoveParticipantsFromChatContainerUseCaseError::RepositoryError(e))
     }

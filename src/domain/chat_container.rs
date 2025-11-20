@@ -29,7 +29,7 @@ impl ChatContainer {
 
     pub fn add_participants(&mut self, actor_public_key: &str, new_participant_public_keys: Vec<String>) -> Result<(), ChatContainerError> {
         if self.context.is_direct() {
-            return Err(ChatContainerError::DirectChatCannotAddMembers)
+            return Err(ChatContainerError::DirectChatCannotAddParticipants)
         }
 
         if !self.can_edit_participants(actor_public_key) {
@@ -51,7 +51,7 @@ impl ChatContainer {
 
     pub fn remove_participants(&mut self, actor_public_key: &str, participant_public_keys: Vec<String>) -> Result<(), ChatContainerError> {
         if self.context.is_direct() {
-            return Err(ChatContainerError::DirectChatCannotRemoveMembers)
+            return Err(ChatContainerError::DirectChatCannotRemoveParticipants)
         }
 
         if !self.can_edit_participants(actor_public_key) {
@@ -78,8 +78,8 @@ impl ChatContainer {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ChatContainerError {
-    DirectChatCannotAddMembers,
-    DirectChatCannotRemoveMembers,
+    DirectChatCannotAddParticipants,
+    DirectChatCannotRemoveParticipants,
     PermissionDenied,
     AlreadyExists,
     TargetPublicKeyNotFound
