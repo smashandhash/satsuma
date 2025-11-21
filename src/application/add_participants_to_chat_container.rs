@@ -6,7 +6,7 @@ use crate::{
     }
 };
 
-pub trait AddParticipantsToChatContainer {
+pub trait AddParticipantsToChatContainerUseCase {
     fn execute(&self, chat_container_id: String, actor_public_key: String, new_participant_public_keys: Vec<String>) -> Result<(), AddParticipantsToChatContainerUseCaseError>;
 }
 
@@ -14,7 +14,7 @@ pub struct AddParticipantsToChatContainerUseCaseImplementation<R: ChatContainerR
     repository: R
 }
 
-impl<R: ChatContainerRepository> AddParticipantsToChatContainer for AddParticipantsToChatContainerUseCaseImplementation <R> {
+impl<R: ChatContainerRepository> AddParticipantsToChatContainerUseCase for AddParticipantsToChatContainerUseCaseImplementation <R> {
     fn execute(&self, chat_container_id: String, actor_public_key: String, new_participant_public_keys: Vec<String>) -> Result<(), AddParticipantsToChatContainerUseCaseError> {
         let mut chat_container = self.repository
             .load(chat_container_id)
