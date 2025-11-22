@@ -10,7 +10,7 @@ mod tests {
     #[test]
     fn init_should_do_nothing() {
         let _conversation = ChatContainer::new("id".to_string(), 
-            ChatContainerContext::Direct("recipient_public_key"), 
+            ChatContainerContext::Direct { other_public_key: "recipient_public_key".to_string() }, 
             Vec::new(),
             Vec::new());
     }
@@ -19,12 +19,12 @@ mod tests {
     fn can_add_participants() {
         let actor_public_key = "actor_public_key".to_string();
         let mut sut = ChatContainer::new("id".to_string(), 
-            ChatContainerContext::Group(
-                ChatContainerGroupType::Private, 
-                actor_public_key, 
-                vec![actor_public_key]
-                ), 
-            vec![actor_public_key],
+            ChatContainerContext::Group {
+                group_type: ChatContainerGroupType::Private, 
+                creator_public_key: actor_public_key.clone(), 
+                admins_public_key: vec![actor_public_key.clone()]
+            }, 
+            vec![actor_public_key.clone()],
             Vec::new());
         let new_participant_public_keys = vec!["new_public_key".to_string()];
 
@@ -39,14 +39,14 @@ mod tests {
         let actor_public_key = "actor_public_key".to_string();
         let target_public_key = "target_public_key".to_string();
         let mut sut = ChatContainer::new("id".to_string(), 
-            ChatContainerContext::Group(
-                ChatContainerGroupType::Channel, 
-                actor_public_key, 
-                vec![actor_public_key]
-                ), 
-            vec![actor_public_key, target_public_key],
+            ChatContainerContext::Group {
+                group_type: ChatContainerGroupType::Channel, 
+                creator_public_key: actor_public_key.clone(), 
+                admins_public_key: vec![actor_public_key.clone()]
+            }, 
+            vec![actor_public_key.clone(), target_public_key.clone()],
             Vec::new());
-        let participant_public_keys = vec![target_public_key];
+        let participant_public_keys = vec![target_public_key.clone()];
 
         let result = sut.remove_participants(&actor_public_key, participant_public_keys);
 
@@ -59,15 +59,15 @@ mod tests {
         let actor_public_key = "actor_public_key".to_string();
         let target_public_key = "target_public_key".to_string();
         let mut sut = ChatContainer::new("id".to_string(), 
-            ChatContainerContext::Direct(target_public_key), 
-            vec![actor_public_key, target_public_key],
+            ChatContainerContext::Direct { other_public_key: target_public_key.clone() }, 
+            vec![actor_public_key.clone(), target_public_key.clone()],
             Vec::new());
-        let participant_public_keys = vec![target_public_key];
+        let participant_public_keys = vec![target_public_key.clone()];
 
         let result = sut.add_participants(&actor_public_key, participant_public_keys);
 
         assert!(result.is_err());
-        assert_eq!(sut.unwrap_err(), ChatContainerError::DirectChatCannotAddParticipants);
+        assert_eq!(result.unwrap_err(), ChatContainerError::DirectChatCannotAddParticipants);
     }
 
     #[test]
@@ -75,15 +75,15 @@ mod tests {
         let actor_public_key = "actor_public_key".to_string();
         let target_public_key = "target_public_key".to_string();
         let mut sut = ChatContainer::new("id".to_string(), 
-            ChatContainerContext::Direct(target_public_key), 
-            vec![actor_public_key, target_public_key],
+            ChatContainerContext::Direct { other_public_key: target_public_key.clone() }, 
+            vec![actor_public_key.clone(), target_public_key.clone()],
             Vec::new());
-        let participant_public_keys = vec![target_public_key];
+        let participant_public_keys = vec![target_public_key.clone()];
 
         let result = sut.remove_participants(&actor_public_key, participant_public_keys);
 
         assert!(result.is_err());
-        assert_eq!(sut.unwrap_err(), ChatContainerError::DirectChatCannotAddParticipants);
+        assert_eq!(result.unwrap_err(), ChatContainerError::DirectChatCannotAddParticipants);
     }
 
     #[test]
@@ -92,20 +92,20 @@ mod tests {
         let actor_public_key = "actor_public_key".to_string();
         let target_public_key = "target_public_key".to_string();
         let mut sut = ChatContainer::new("id".to_string(), 
-            ChatContainerContext::Group(
-                ChatContainerGroupType::Private, 
-                admin_public_key, 
-                vec![admin_public_key]
-                ), 
-            vec![actor_public_key],
+            ChatContainerContext::Group {
+                group_type: ChatContainerGroupType::Private, 
+                creator_public_key: admin_public_key.clone(), 
+                admins_public_key: vec![admin_public_key.clone()]
+            }, 
+            vec![actor_public_key.clone()],
             Vec::new());
 
-        let participant_public_keys = vec![target_public_key];
+        let participant_public_keys = vec![target_public_key.clone()];
 
         let result = sut.add_participants(&actor_public_key, participant_public_keys);
 
         assert!(result.is_err());
-        assert_eq!(sut.unwrap_err(), ChatContainerError::PermissionDenied);
+        assert_eq!(result.unwrap_err(), ChatContainerError::PermissionDenied);
     }
 
     #[test]
@@ -114,20 +114,20 @@ mod tests {
         let actor_public_key = "actor_public_key".to_string();
         let target_public_key = "target_public_key".to_string();
         let mut sut = ChatContainer::new("id".to_string(), 
-            ChatContainerContext::Group(
-                ChatContainerGroupType::Private, 
-                admin_public_key, 
-                vec![admin_public_key]
-                ), 
-            vec![actor_public_key, target_public_key],
+            ChatContainerContext::Group {
+                group_type: ChatContainerGroupType::Private, 
+                creator_public_key: admin_public_key.clone(), 
+                admins_public_key: vec![admin_public_key.clone()]
+            }, 
+            vec![actor_public_key.clone(), target_public_key.clone()],
             Vec::new());
 
-        let participant_public_keys = vec![target_public_key];
+        let participant_public_keys = vec![target_public_key.clone()];
 
         let result = sut.remove_participants(&actor_public_key, participant_public_keys);
 
         assert!(result.is_err());
-        assert_eq!(sut.unwrap_err(), ChatContainerError::PermissionDenied);
+        assert_eq!(result.unwrap_err(), ChatContainerError::PermissionDenied);
     }
 
     #[test]
@@ -135,20 +135,20 @@ mod tests {
         let admin_public_key = "admin_public_key".to_string();
         let target_public_key = "target_public_key".to_string();
         let mut sut = ChatContainer::new("id".to_string(), 
-            ChatContainerContext::Group(
-                ChatContainerGroupType::Private, 
-                admin_public_key, 
-                vec![admin_public_key]
-                ), 
-            vec![admin_public_key, target_public_key],
+            ChatContainerContext::Group {
+                group_type: ChatContainerGroupType::Private, 
+                creator_public_key: admin_public_key.clone(), 
+                admins_public_key: vec![admin_public_key.clone()]
+            }, 
+            vec![admin_public_key.clone(), target_public_key.clone()],
             Vec::new());
 
-        let participant_public_keys = vec![target_public_key];
+        let participant_public_keys = vec![target_public_key.clone()];
 
         let result = sut.add_participants(&admin_public_key, participant_public_keys);
 
         assert!(result.is_err());
-        assert_eq!(sut.unwrap_err(), ChatContainerError::AlreadyExists);
+        assert_eq!(result.unwrap_err(), ChatContainerError::AlreadyExists);
     }
 
     #[test]
@@ -156,19 +156,19 @@ mod tests {
         let admin_public_key = "admin_public_key".to_string();
         let target_public_key = "target_public_key".to_string();
         let mut sut = ChatContainer::new("id".to_string(), 
-            ChatContainerContext::Group(
-                ChatContainerGroupType::Private, 
-                admin_public_key, 
-                vec![admin_public_key]
-                ), 
-            vec![admin_public_key],
+            ChatContainerContext::Group {
+                group_type: ChatContainerGroupType::Private, 
+                creator_public_key: admin_public_key.clone(), 
+                admins_public_key: vec![admin_public_key.clone()]
+            }, 
+            vec![admin_public_key.clone()],
             Vec::new());
 
-        let participant_public_keys = vec![target_public_key];
+        let participant_public_keys = vec![target_public_key.clone()];
 
         let result = sut.remove_participants(&admin_public_key, participant_public_keys);
 
         assert!(result.is_err());
-        assert_eq!(sut.unwrap_err(), ChatContainerError::TargetPublicKeyNotFound);
+        assert_eq!(result.unwrap_err(), ChatContainerError::TargetPublicKeyNotFound);
     }
 }

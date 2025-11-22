@@ -14,6 +14,14 @@ pub struct AddParticipantsToChatContainerUseCaseImplementation<R: ChatContainerR
     repository: R
 }
 
+impl<R: ChatContainerRepository> AddParticipantsToChatContainerUseCaseImplementation <R> {
+    pub fn new(repository: R) -> Self {
+        Self {
+            repository
+        }
+    }
+}
+
 impl<R: ChatContainerRepository> AddParticipantsToChatContainerUseCase for AddParticipantsToChatContainerUseCaseImplementation <R> {
     fn execute(&self, chat_container_id: String, actor_public_key: String, new_participant_public_keys: Vec<String>) -> Result<(), AddParticipantsToChatContainerUseCaseError> {
         let mut chat_container = self.repository
