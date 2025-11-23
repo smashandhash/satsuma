@@ -3,6 +3,6 @@ mod change_name_test;
 mod send_message_test;
 mod get_conversation_messages_test;
 mod create_conversation_test;
-mod add_participant_to_conversation_test;
+mod add_participants_to_chat_container_test;
 mod remove_participant_from_conversation_test;
 mod conversation_list_test;
