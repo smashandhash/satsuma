@@ -1,9 +1,16 @@
 #[cfg(test)]
 mod tests {
-    use satsuma::application::add_participants_to_chat_container::{
-        AddParticipantsToChatContainerUseCase,
-        AddParticipantsToChatContainerUseCaseImplementation,
-        // AddParticipantsToChatContainerUseCaseError,
+    use satsuma::{
+        application::add_participants_to_chat_container::{
+            AddParticipantsToChatContainerUseCase,
+            AddParticipantsToChatContainerUseCaseImplementation,
+            // AddParticipantsToChatContainerUseCaseError,
+        },
+        domain::chat_container::{
+            ChatContainer,
+            ChatContainerContext,
+            ChatContainerGroupType,
+        }
     };
     use crate::helper::chat_container_repository_stub::ChatContainerRepositoryStub;
     // use rstest::rstest;
@@ -33,13 +40,22 @@ mod tests {
         */
         let repository = ChatContainerRepositoryStub {
             simulated_error: None,
-            mocked_chat_container: None,
+            mocked_chat_container: Some(ChatContainer::new(
+                "id".to_string(), 
+                ChatContainerContext::Group { 
+                    group_type: ChatContainerGroupType::Private,
+                    creator_public_key: "creator_public_key".to_string(),
+                    admins_public_key: vec!["creator_public_key".to_string()]
+                },
+                Vec::new(),
+                Vec::new()
+                )),
         };
         let sut = AddParticipantsToChatContainerUseCaseImplementation::new(repository);
 
         let result = sut.execute(
             "chat_container_id".to_string(), 
-            "actor_public_key".to_string(), 
+            "creator_public_key".to_string(), 
             Vec::new()
         );
 
