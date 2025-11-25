@@ -4,12 +4,13 @@ mod tests {
         application::add_participants_to_chat_container::{
             AddParticipantsToChatContainerUseCase,
             AddParticipantsToChatContainerUseCaseImplementation,
-            // AddParticipantsToChatContainerUseCaseError,
+            AddParticipantsToChatContainerUseCaseError,
         },
         domain::chat_container::{
             ChatContainer,
             ChatContainerContext,
             ChatContainerGroupType,
+            ChatContainerError
         }
     };
     use crate::helper::chat_container_repository_stub::ChatContainerRepositoryStub;
@@ -60,5 +61,30 @@ mod tests {
         );
 
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn cannot_add_participant() {
+        let repository = ChatContainerRepositoryStub {
+            simulated_error: None,
+            mocked_chat_container: Some(ChatContainer::new(
+                "id".to_string(), 
+                ChatContainerContext::Direct { 
+                    other_public_key: "creator_public_key".to_string(),
+                },
+                Vec::new(),
+                Vec::new()
+                )),
+        };
+        let sut = AddParticipantsToChatContainerUseCaseImplementation::new(repository);
+
+        let result = sut.execute(
+            "chat_container_id".to_string(), 
+            "creator_public_key".to_string(), 
+            Vec::new()
+        );
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), AddParticipantsToChatContainerUseCaseError::ContainerError(ChatContainerError::DirectChatCannotAddParticipants));
     }
 }
