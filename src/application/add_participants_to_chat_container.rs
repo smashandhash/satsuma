@@ -26,8 +26,7 @@ impl<R: ChatContainerRepository> AddParticipantsToChatContainerUseCase for AddPa
     fn execute(&self, chat_container_id: String, actor_public_key: String, new_participant_public_keys: Vec<String>) -> Result<(), AddParticipantsToChatContainerUseCaseError> {
         let mut chat_container = self.repository
             .load(chat_container_id)
-            .map_err(|e| AddParticipantsToChatContainerUseCaseError::RepositoryError(e))
-            .unwrap();
+            .map_err(|e| AddParticipantsToChatContainerUseCaseError::RepositoryError(e))?;
 
         chat_container
             .add_participants(&actor_public_key, new_participant_public_keys)
