@@ -1,10 +1,13 @@
 use crate::{
     domain::chat_session::ChatSession,
-    infrastructure::chat_session_repository::ChatSessionRepository
+    infrastructure::chat_session_repository::{
+        ChatSessionRepository,
+        ChatSessionRepositoryError
+    },
 };
 
 pub trait ChatSessionListUseCase {
-    fn execute(&self, chat_session_id: String) -> Vec<ChatSession>;
+    fn execute(&self, chat_session_id: String) -> Result<Vec<ChatSession>, ChatSessionListUseCaseError>;
 }
 
 pub struct ChatSessionListUseCaseImplementation <R: ChatSessionRepository> {
@@ -18,7 +21,12 @@ impl<R: ChatSessionRepository> ChatSessionListUseCaseImplementation <R> {
 }
 
 impl<R: ChatSessionRepository> ChatSessionListUseCase for ChatSessionListUseCaseImplementation<R> {
-    fn execute(&self, chat_session_id: String) -> Vec<ChatSession> {
-        self.repository.load(chat_session_id)
+    fn execute(&self, chat_session_id: String) -> Result<Vec<ChatSession>, ChatSessionListUseCaseError> {
+        self.repository.load(chat_session_id).map_err(|e| ChatSessionListUseCaseError::RepositoryError(e))
     }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ChatSessionListUseCaseError {
+    RepositoryError(ChatSessionRepositoryError)
 }

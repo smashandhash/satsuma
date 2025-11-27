@@ -5,4 +5,4 @@ mod get_conversation_messages_test;
 mod create_conversation_test;
 mod add_participants_to_chat_container_test;
 mod remove_participant_from_conversation_test;
-mod conversation_list_test;
+mod chat_session_list_test;
