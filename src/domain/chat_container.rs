@@ -1,20 +1,16 @@
-use crate::domain::chat_session::ChatSession;
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct ChatContainer {
     pub id: String,
     pub context: ChatContainerContext,
     pub participant_public_keys: Vec<String>,
-    pub sessions: Vec<ChatSession>
 }
 
 impl ChatContainer {
-    pub fn new(id: String, context: ChatContainerContext, participant_public_keys: Vec<String>, sessions: Vec<ChatSession>) -> Self {
+    pub fn new(id: String, context: ChatContainerContext, participant_public_keys: Vec<String>) -> Self {
         Self {
             id,
             context,
             participant_public_keys,
-            sessions
         }
     }
 

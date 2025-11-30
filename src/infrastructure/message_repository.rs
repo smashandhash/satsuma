@@ -11,6 +11,7 @@ use std::sync::Arc;
 pub trait MessageRepository {
     async fn send(
         &self,
+        session_id: String,
         sender_keys: &Keys,
         content: &str,
         kind: MessageKind,
@@ -26,26 +27,27 @@ pub struct NostrMessageRepository {
 impl MessageRepository for NostrMessageRepository {
     async fn send(
         &self,
+        session_id: String,
         sender_keys: &Keys,
         content: &str,
         kind: MessageKind,
     ) -> Result<Message, MessageRepositoryError> {
         let (event_kind, tags) = match kind {
-            MessageKind::Direct(ref recipient_pubkey) => (
+            MessageKind::Direct => (
                 Kind::EncryptedDirectMessage,
-                vec![Tag::public_key(Keys::parse(recipient_pubkey).unwrap().public_key())],
+                Vec::new(),
             ),
             MessageKind::Thread(ref parent_id) => (
                 Kind::TextNote,
                 vec![Tag::event(EventId::from_hex(parent_id).map_err(|e| MessageRepositoryError::UnknownError(e.to_string()))?)],
             ),
-            MessageKind::Group(ref group_id) => (
+            MessageKind::Group => (
                 Kind::TextNote,
-                vec![Tag::custom("group".into(), &[group_id.clone()])]
+                vec![Tag::custom("group".into(), &[session_id.clone()])]
             ),
-            MessageKind::Channel(ref channel_id) => (
+            MessageKind::Channel => (
                 Kind::TextNote,
-                vec![Tag::custom("channel".into(), &[channel_id.clone()])]
+                vec![Tag::custom("channel".into(), &[session_id.clone()])]
             ),
         };
 
@@ -61,6 +63,7 @@ impl MessageRepository for NostrMessageRepository {
 
         let message = Message::new(
             event.id.to_hex(),
+            session_id,
             sender_keys.public_key().to_string(),
             event.content.clone(),
             event.created_at.as_secs(),

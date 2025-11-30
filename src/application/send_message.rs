@@ -21,7 +21,8 @@ use nostr_sdk::prelude::*;
 #[async_trait]
 pub trait SendMessageUseCase {
     async fn execute(&self, 
-        content: String, 
+        content: String,
+        session_id: String,
         recipient_public_key: Option<String>, 
         parent_id: Option<String>,
         channel_id: Option<String>,
@@ -41,7 +42,8 @@ impl<K: KeyProvider, R: MessageRepository, S: LocalStorage> NostrSendMessageUseC
 #[async_trait]
 impl<K: KeyProvider, R: MessageRepository, S: LocalStorage> SendMessageUseCase for NostrSendMessageUseCase<K, R, S> where K: KeyProvider + Send + Sync, R: MessageRepository + Send + Sync, S: LocalStorage + Send + Sync {
     async fn execute(&self, 
-        content: String, 
+        content: String,
+        session_id: String,
         recipient_public_key: Option<String>,
         parent_id: Option<String>,
         channel_id: Option<String>,
@@ -55,16 +57,16 @@ impl<K: KeyProvider, R: MessageRepository, S: LocalStorage> SendMessageUseCase f
             .await
             .map_err(|e| SendMessageUseCaseError::InvalidKey(e))?;
 
-        let kind = if let Some(recipient) = &recipient_public_key {
+        let kind = if let Some(_recipient) = &recipient_public_key {
             if parent_id.is_some() {
                 MessageKind::Thread(parent_id.clone().unwrap())
             } else {
-                MessageKind::Direct(recipient.clone())
+                MessageKind::Direct
             }
-        } else if let Some(channel) = &channel_id {
-            MessageKind::Channel(channel.clone())
-        } else if let Some(group) = &group_id {
-            MessageKind::Group(group.clone())
+        } else if let Some(_channel) = &channel_id {
+            MessageKind::Channel
+        } else if let Some(_group) = &group_id {
+            MessageKind::Group
         } else {
             return Err(SendMessageUseCaseError::MissingDestination);
         };
@@ -78,7 +80,7 @@ impl<K: KeyProvider, R: MessageRepository, S: LocalStorage> SendMessageUseCase f
             return Err(SendMessageUseCaseError::MessageTooLong);
         }
 
-        self.repository.send(&keys, trimmed_content, kind).await.map_err(|e| SendMessageUseCaseError::RepositoryError(e))
+        self.repository.send(session_id, &keys, trimmed_content, kind).await.map_err(|e| SendMessageUseCaseError::RepositoryError(e))
     }
 }
 

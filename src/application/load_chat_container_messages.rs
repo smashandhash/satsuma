@@ -9,19 +9,25 @@ use crate::{
     },
 };
 
-pub trait LoadChatContainerMessagesUseCase {
+pub trait LoadMessagesUseCase {
     fn execute(&self, chat_container_id: String) -> Result<Vec<Message>, LoadChatContainerMessagesUseCaseError>;
 }
 
-pub struct LoadChatContainerMessagesUseCaseImplementation<R: ChatContainerRepository> {
+pub struct LoadMessagesUseCaseImplementation<R: ChatContainerRepository> {
     pub repository: R,
 }
 
-impl<R: ChatContainerRepository> LoadChatContainerMessagesUseCase for LoadChatContainerMessagesUseCaseImplementation<R> {
+impl<R: ChatContainerRepository> LoadMessagesUseCase for LoadMessagesUseCaseImplementation<R> {
     fn execute(&self, chat_container_id: String) -> Result<Vec<Message>, LoadChatContainerMessagesUseCaseError> {
         let chat_container = self.repository.load(chat_container_id).map_err(|e| LoadChatContainerMessagesUseCaseError::RepositoryError(e))?;
 
-        Ok(chat_container.sessions.into_iter().map(|session| { session.context == ChatSessionContext::Root }))
+        let messages = &chat_container.sessions
+            .iter()
+            .find(|session| session.context == ChatSessionContext::Root )
+            .unwrap()
+            .messages;
+
+        Ok(messages.clone())
     }
 }
 

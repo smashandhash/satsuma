@@ -1,6 +1,7 @@
 #[derive(Debug, Clone, PartialEq)]
 pub struct Message {
     pub id: String,
+    pub session_id: String, // DO NOT INCLUDE THIS ON THE NOSTR PROTOCOL
     pub public_key: String,
     pub content: String,
     pub created_at: u64,
@@ -9,16 +10,17 @@ pub struct Message {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum MessageKind {
-    Direct(String),
-    Channel(String),
-    Group(String),
+    Direct,
+    Channel,
+    Group,
     Thread(String)
 }
 
 impl Message {
-    pub fn new(id: String, public_key: String, content: String, created_at: u64, kind: MessageKind) -> Self {
+    pub fn new(id: String, session_id: String, public_key: String, content: String, created_at: u64, kind: MessageKind) -> Self {
         Self {
             id,
+            session_id,
             public_key,
             content,
             created_at,
