@@ -1,7 +1,13 @@
 use crate::{
-    domain::message::{
-        Message,
-        MessageKind
+    domain::{
+        chat_container::{
+            ChatContainerContext,
+            ChatContainerGroupType,
+        },
+        message::{
+            Message,
+            MessageKind
+        },
     },
     infrastructure::{
         key_provider::{
@@ -16,6 +22,7 @@ use crate::{
     }
 };
 use async_trait::async_trait;
+use std::sync::Arc;
 use nostr_sdk::prelude::*;
 
 #[async_trait]
@@ -23,16 +30,14 @@ pub trait SendMessageUseCase {
     async fn execute(&self, 
         content: String,
         session_id: String,
-        recipient_public_key: Option<String>, 
-        parent_id: Option<String>,
-        channel_id: Option<String>,
-        group_id: Option<String>) -> Result<Message, SendMessageUseCaseError>;
+        chat_container_context: ChatContainerContext,
+        parent_id: Option<String>) -> Result<Message, SendMessageUseCaseError>;
 }
 
 pub struct NostrSendMessageUseCase<K: KeyProvider, R: MessageRepository, S: LocalStorage> {
-    pub provider: K,
-    pub repository: R,
-    pub storage: S
+    pub provider: Arc<K>,
+    pub repository: Arc<R>,
+    pub storage: Arc<S>
 }
 
 impl<K: KeyProvider, R: MessageRepository, S: LocalStorage> NostrSendMessageUseCase<K, R, S> {
@@ -44,10 +49,8 @@ impl<K: KeyProvider, R: MessageRepository, S: LocalStorage> SendMessageUseCase f
     async fn execute(&self, 
         content: String,
         session_id: String,
-        recipient_public_key: Option<String>,
-        parent_id: Option<String>,
-        channel_id: Option<String>,
-        group_id: Option<String>) -> Result<Message, SendMessageUseCaseError> {
+        chat_container_context: ChatContainerContext,
+        parent_id: Option<String>) -> Result<Message, SendMessageUseCaseError> {
          let secret_key = self
             .storage
             .load_secret_key()
@@ -57,18 +60,17 @@ impl<K: KeyProvider, R: MessageRepository, S: LocalStorage> SendMessageUseCase f
             .await
             .map_err(|e| SendMessageUseCaseError::InvalidKey(e))?;
 
-        let kind = if let Some(_recipient) = &recipient_public_key {
-            if parent_id.is_some() {
-                MessageKind::Thread(parent_id.clone().unwrap())
-            } else {
-                MessageKind::Direct
-            }
-        } else if let Some(_channel) = &channel_id {
-            MessageKind::Channel
-        } else if let Some(_group) = &group_id {
-            MessageKind::Group
-        } else {
-            return Err(SendMessageUseCaseError::MissingDestination);
+        let kind = match chat_container_context {
+            ChatContainerContext::Direct { .. } => parent_id
+                .map(MessageKind::Thread)
+                .unwrap_or(MessageKind::Direct),
+
+            ChatContainerContext::Group { group_type, ..} => parent_id.map(MessageKind::Thread).unwrap_or(
+                match group_type {
+                    ChatContainerGroupType::Private => MessageKind::Group,
+                    ChatContainerGroupType::Channel => MessageKind::Channel
+                }
+            ),
         };
 
         let trimmed_content = content.trim();
@@ -88,7 +90,6 @@ impl<K: KeyProvider, R: MessageRepository, S: LocalStorage> SendMessageUseCase f
 pub enum SendMessageUseCaseError {
     Unauthorized(String),
     InvalidKey(KeyProviderError),
-    MissingDestination,
     EmptyMessage,
     MessageTooLong,
     RepositoryError(MessageRepositoryError)
