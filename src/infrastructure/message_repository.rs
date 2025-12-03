@@ -1,11 +1,22 @@
-use crate::domain::message::{
-    Message,
-    MessageKind
+use crate::domain::{
+    chat_container::{
+        ChatContainerContext,
+        ChatContainerGroupType,
+    },
+    message::{
+        Message,
+        MessageKind
+    },
 };
 use async_trait::async_trait;
 use thiserror::Error;
 use nostr_sdk::prelude::*;
-use std::sync::Arc;
+use nostr::event::tag::Tag;
+use std::{
+    sync::Arc,
+    str::FromStr,
+    time::Duration,
+};
 
 #[async_trait]
 pub trait MessageRepository {
@@ -16,11 +27,48 @@ pub trait MessageRepository {
         content: &str,
         kind: MessageKind,
     ) -> Result<Message, MessageRepositoryError>;
-    fn find_conversation(&self, sender_public_key: String, recipient_public_key: String) -> Vec<Message>;
+    async fn find_root_messages(&self, container_id: String, context: ChatContainerContext, sender_public_key: String) -> Result<Vec<Message>, MessageRepositoryError>;
 }
 
 pub struct NostrMessageRepository {
     client: Arc<Client>,
+}
+
+impl NostrMessageRepository {
+    pub async fn find_direct_root_messages(&self, other_public_key: String, sender_public_key: String) -> Result<Vec<Message>, MessageRepositoryError> {
+        let filter = Filter::new()
+            .kinds(vec![Kind::GiftWrap])
+            .pubkeys(vec![
+                PublicKey::from_str(&other_public_key).map_err(|e| MessageRepositoryError::UnknownError(e.to_string()))?,
+                PublicKey::from_str(&sender_public_key).map_err(|e| MessageRepositoryError::UnknownError(e.to_string()))?
+            ])
+            .limit(100);
+
+        let events = self.client.fetch_events(filter, Duration::from_secs(10)).await
+            .map_err(|e| MessageRepositoryError::NetworkError(e.to_string()))?;
+
+        let mut result = Vec::new();
+
+        for event in events {
+            if event.kind == Kind::GiftWrap {
+                let unwrapped = self.client.unwrap_gift_wrap(&event).await
+                    .map_err(|e| MessageRepositoryError::UnknownError(e.to_string()))?;
+
+                let is_thread = unwrapped.rumor.tags.iter().any(|t| matches!(t, Tag::Event { .. })); // TODO: From here
+
+                if is_thread {
+                    continue;
+                }
+
+                result.push(Message::from_event(&unwrapped.rumor));
+            }
+        }
+
+        Ok(result)
+    }
+
+    pub async fn find_channel_root_messages(&self, channel_id: String) -> Result<Vec<Message>, MessageRepositoryError> {
+    }
 }
 
 #[async_trait]
@@ -72,8 +120,18 @@ impl MessageRepository for NostrMessageRepository {
         Ok(message)
     }
 
-    fn find_conversation(&self, _sender_public_key: String, _recipient_public_key: String) -> Vec<Message> {
-        Vec::new()
+    async fn find_root_messages(&self, container_id: String, context: ChatContainerContext, sender_public_key: String) -> Result<Vec<Message>, MessageRepositoryError> {
+        match context {
+            ChatContainerContext::Direct { other_public_key } => {
+                self.find_direct_root_messages(other_public_key, sender_public_key).await
+            }   
+            ChatContainerContext::Group { group_type, .. } => {
+                match group_type {
+                    ChatContainerGroupType::Private => self.find_group_root_messages(container_id).await,
+                    ChatContainerGroupType::Channel => self.find_channel_root_messages(container_id).await,
+                }
+            }
+        }
     }
 }
 
