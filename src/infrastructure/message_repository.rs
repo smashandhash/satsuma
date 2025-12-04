@@ -10,8 +10,8 @@ use crate::domain::{
 };
 use async_trait::async_trait;
 use thiserror::Error;
+use nostr_sdk::TagKind;
 use nostr_sdk::prelude::*;
-use nostr::event::tag::Tag;
 use std::{
     sync::Arc,
     str::FromStr,
@@ -47,6 +47,8 @@ impl NostrMessageRepository {
         let events = self.client.fetch_events(filter, Duration::from_secs(10)).await
             .map_err(|e| MessageRepositoryError::NetworkError(e.to_string()))?;
 
+        let e_tag = SingleLetterTag::lowercase(Alphabet::E);
+
         let mut result = Vec::new();
 
         for event in events {
@@ -54,7 +56,7 @@ impl NostrMessageRepository {
                 let unwrapped = self.client.unwrap_gift_wrap(&event).await
                     .map_err(|e| MessageRepositoryError::UnknownError(e.to_string()))?;
 
-                let is_thread = unwrapped.rumor.tags.iter().any(|t| matches!(t, Tag::Event { .. })); // TODO: From here
+                let is_thread = unwrapped.rumor.tags.iter().any(|t| matches!(t.kind(), TagKind::SingleLetter(sl) if sl == e_tag));
 
                 if is_thread {
                     continue;
