@@ -21,6 +21,9 @@ impl<R: ChatContainerRepository> LoadMessagesUseCase for LoadMessagesUseCaseImpl
     fn execute(&self, chat_container_id: String) -> Result<Vec<Message>, LoadChatContainerMessagesUseCaseError> {
         let chat_container = self.repository.load(chat_container_id).map_err(|e| LoadChatContainerMessagesUseCaseError::RepositoryError(e))?;
 
+        // TODO: Load from ChatSessions
+        // TODO: Load from MessageRepository
+
         let messages = &chat_container.sessions
             .iter()
             .find(|session| session.context == ChatSessionContext::Root )

@@ -49,7 +49,7 @@ impl NostrMessageRepository {
 
         let e_tag = SingleLetterTag::lowercase(Alphabet::E);
 
-        let mut result = Vec::new();
+        // let mut result = Vec::new();
 
         for event in events {
             if event.kind == Kind::GiftWrap {
@@ -62,14 +62,20 @@ impl NostrMessageRepository {
                     continue;
                 }
 
-                result.push(Message::from_event(&unwrapped.rumor));
+                // result.push(Message::from_event(&unwrapped.rumor)); // TODO: Do it later
             }
         }
 
-        Ok(result)
+        // Ok(result)
+        Ok(Vec::new())
     }
 
-    pub async fn find_channel_root_messages(&self, channel_id: String) -> Result<Vec<Message>, MessageRepositoryError> {
+    pub async fn find_channel_root_messages(&self, _channel_id: String) -> Result<Vec<Message>, MessageRepositoryError> {
+        Ok(Vec::new())
+    }
+
+    pub async fn find_group_root_messages(&self, _group_id: String) -> Result<Vec<Message>, MessageRepositoryError> {
+        Ok(Vec::new())
     }
 }
 
