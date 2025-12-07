@@ -1,33 +1,52 @@
 #[cfg(test)]
 mod tests {
     use satsuma::{
-        application::load_chat_container_messages::{
-            LoadChatContainerMessagesUseCase,
-            LoadChatContainerMessagesUseCaseError,
+        application::load_messages::{
+            LoadMessagesUseCase,
+            LoadMessagesUseCaseImplementation,
+            LoadMessagesUseCaseError,
         },
         domain::{
             chat_container::{
                 ChatContainer,
                 ChatContainerContext
             },
-            chat_session::ChatSession
+            message::{
+                Message,
+                MessageKind,
+            },
         },
     };
-    use crate::helper::chat_container_repository_stub::ChatContainerRepositoryStub;
+    use crate::helper::{
+        chat_container_repository_stub::ChatContainerRepositoryStub,
+        message_repository_stub::MessageRepositoryStub,
+        local_storage_stub::LocalStorageStub,
+        key_provider_stub::KeyProviderStub,
+    };
+    use std::sync::Arc;
 
-    #[test]
-    fn successfully_load_messages() {
+    #[tokio::test]
+    async fn successfully_load_messages() {
         let sender_public_key = "sender_public_key".to_string();
         let recipient_public_key = "recipient_public_key".to_string();
+        let storage = Arc::new(LocalStorageStub { simulated_error: None });
+        let provider = Arc::new(KeyProviderStub { simulated_error: None });
+        let chat_container_id = "id";
         let chat_container = ChatContainer::new(
-            "id".to_string(), 
+            chat_container_id.to_string(), 
             ChatContainerContext::Direct { other_public_key: recipient_public_key.clone() },
-            vec![sender_public_key.clone(), recipient_public_key.clone()],
-            Vec::new());
-        let repository = ChatContainerRepositoryStub {
+            vec![sender_public_key.clone(), recipient_public_key.clone()]
+            );
+        let container_repository = Arc::new(ChatContainerRepositoryStub {
             simulated_error: None,
             mocked_chat_container: Some(chat_container),
-        };
+        });
+        let message_repository = Arc::new(MessageRepositoryStub::new(None));
+        let sut = LoadMessagesUseCaseImplementation::new(storage, provider, container_repository, message_repository);
+
+        let result = sut.execute(chat_container_id.to_string()).await;
+
+        assert!(result.is_ok());
     }
     /*
     use satsuma::{

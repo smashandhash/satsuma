@@ -7,7 +7,7 @@ use crate::{
 };
 
 pub trait ChatSessionListUseCase {
-    fn execute(&self, chat_session_id: String) -> Result<Vec<ChatSession>, ChatSessionListUseCaseError>;
+    fn execute(&self, container_id: String) -> Result<Vec<ChatSession>, ChatSessionListUseCaseError>;
 }
 
 pub struct ChatSessionListUseCaseImplementation <R: ChatSessionRepository> {
@@ -21,8 +21,8 @@ impl<R: ChatSessionRepository> ChatSessionListUseCaseImplementation <R> {
 }
 
 impl<R: ChatSessionRepository> ChatSessionListUseCase for ChatSessionListUseCaseImplementation<R> {
-    fn execute(&self, chat_session_id: String) -> Result<Vec<ChatSession>, ChatSessionListUseCaseError> {
-        self.repository.load(chat_session_id).map_err(|e| ChatSessionListUseCaseError::RepositoryError(e))
+    fn execute(&self, container_id: String) -> Result<Vec<ChatSession>, ChatSessionListUseCaseError> {
+        self.repository.load_by_container_id(container_id).map_err(|e| ChatSessionListUseCaseError::RepositoryError(e))
     }
 }
 

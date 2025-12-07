@@ -41,7 +41,6 @@ impl<R: ChatContainerRepository> CreateDirectChatUseCase for CreateDirectChatUse
             self.generate_chat_session_id(sender_public_key, recipient_public_key), 
             ChatContainerContext::Direct { other_public_key: recipient_public_key.to_string() },
             vec![sender_public_key.to_string(), recipient_public_key.to_string()],
-            Vec::new()
         );
 
         self.repository
