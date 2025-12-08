@@ -18,9 +18,10 @@ mod tests {
         #[case] new_content: Option<String>,
         #[case] is_empty: bool) {
         let created_at = Utc::now().timestamp() as u64;
-        let kind = MessageKind::Direct("npub202".to_string());
+        let kind = MessageKind::Direct;
         let id = "id".to_string();
-        let mut message = Message::new(id, public_key, content, created_at.clone(), kind);
+        let session_id = "session_id".to_string();
+        let mut message = Message::new(id, session_id, public_key, content, created_at.clone(), kind);
 
         if let Some(new_content) = new_content {
             message.edit_content(&new_content);

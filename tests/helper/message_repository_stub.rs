@@ -40,7 +40,7 @@ impl MessageRepository for MessageRepositoryStub {
         if let Some(err) = &self.simulated_error {
             Err(err.clone())
         } else {
-            Ok(self.mocked_messages.clone())
+            Ok(vec![self.make_message()])
         }
 
     }

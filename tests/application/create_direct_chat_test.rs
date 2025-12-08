@@ -21,8 +21,7 @@ mod tests {
         let chat_container = ChatContainer::new(
             "id".to_string(), 
             ChatContainerContext::Direct { other_public_key: recipient_public_key.clone() },
-            vec![sender_public_key.clone(), recipient_public_key.clone()],
-            Vec::new());
+            vec![sender_public_key.clone(), recipient_public_key.clone()]);
         let repository = ChatContainerRepositoryStub {
             simulated_error: None,
             mocked_chat_container: Some(chat_container.clone())
@@ -43,7 +42,6 @@ mod tests {
         let chat_container = ChatContainer::new(
             "id".to_string(),
             ChatContainerContext::Direct { other_public_key: "other_public_key".to_string() },
-            Vec::new(),
             Vec::new());
         let repository = ChatContainerRepositoryStub {
             simulated_error: None,

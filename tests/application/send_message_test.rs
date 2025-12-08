@@ -1,9 +1,12 @@
 #[cfg(test)]
 mod tests {
-    use satsuma::application::send_message::{
-        SendMessageUseCase,
-        SendMessageUseCaseError,
-        NostrSendMessageUseCase,
+    use satsuma::{
+        application::send_message::{
+            SendMessageUseCase,
+            SendMessageUseCaseError,
+            NostrSendMessageUseCase,
+        },
+        domain::chat_container::ChatContainerContext,
     };
     use crate::helper::{
         key_provider_stub::KeyProviderStub,
@@ -11,17 +14,17 @@ mod tests {
         local_storage_stub::LocalStorageStub
     };
     use rstest::rstest;
+    use std::sync::Arc;
 
     #[tokio::test]
     async fn send_message_succeed() {
         let content = "Hello, Bob.";
-        let recipient_public_key = "npub001".to_string();
-        let provider = KeyProviderStub { simulated_error: None };
-        let repository = MessageRepositoryStub::new(None, Vec::new());
-        let storage = LocalStorageStub { simulated_error: None };
+        let provider = Arc::new(KeyProviderStub { simulated_error: None });
+        let repository = Arc::new(MessageRepositoryStub::new(None));
+        let storage = Arc::new(LocalStorageStub { simulated_error: None });
         let sut = NostrSendMessageUseCase { provider, repository, storage };
 
-        let result = sut.execute(content.to_string(), Some(recipient_public_key), None, None, None).await;
+        let result = sut.execute(content.to_string(), "session_id".to_string(), ChatContainerContext::Direct { other_public_key: "other_public_key".to_string() }, None).await;
 
         assert!(result.is_ok());
     }
@@ -34,13 +37,12 @@ mod tests {
         #[case] _label: &str,
         #[case] content: &str,
         #[case] expected_error: SendMessageUseCaseError) {
-        let recipient_public_key = "npub001".to_string();
-        let provider = KeyProviderStub { simulated_error: None };
-        let repository = MessageRepositoryStub::new(None, Vec::new());
-        let storage = LocalStorageStub { simulated_error: None };
+        let provider = Arc::new(KeyProviderStub { simulated_error: None });
+        let repository = Arc::new(MessageRepositoryStub::new(None));
+        let storage = Arc::new(LocalStorageStub { simulated_error: None });
         let sut = NostrSendMessageUseCase { provider, repository, storage };
 
-        let result = sut.execute(content.to_string(), Some(recipient_public_key), None, None, None).await;
+        let result = sut.execute(content.to_string(), "session_id".to_string(), ChatContainerContext::Direct { other_public_key: "other_public_key".to_string() }, None).await;
 
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), expected_error);

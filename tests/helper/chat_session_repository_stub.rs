@@ -16,7 +16,7 @@ impl ChatSessionRepository for ChatSessionRepositoryStub {
         self.simulated_error.clone().map_or(Ok(()), Err)
     }
 
-    fn load(&self, _chat_session_id: String) -> Result<Vec<ChatSession>, ChatSessionRepositoryError> {
+    fn load_by_container_id(&self, _chat_container_id: String) -> Result<Vec<ChatSession>, ChatSessionRepositoryError> {
         if let Some(chat_sessions) = self.mocked_chat_sessions.clone() {
             Ok(chat_sessions)
         } else {

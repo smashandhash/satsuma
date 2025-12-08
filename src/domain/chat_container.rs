@@ -55,7 +55,7 @@ impl ChatContainer {
         }
 
         for public_key in &participant_public_keys {
-            if self.participant_public_keys.contains(&public_key) {
+            if !self.participant_public_keys.contains(&public_key) {
                 return Err(ChatContainerError::TargetPublicKeyNotFound)
             }
         }

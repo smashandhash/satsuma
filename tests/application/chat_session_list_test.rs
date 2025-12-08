@@ -16,7 +16,7 @@ mod tests {
 
     #[test]
     fn successfully_load_chat_session_list() {
-        let chat_sessions = vec![ChatSession::new("id".to_string(), ChatSessionContext::Root)];
+        let chat_sessions = vec![ChatSession::new("id".to_string(), "container_id".to_string(), ChatSessionContext::Root)];
         let repository = ChatSessionRepositoryStub {
             mocked_chat_sessions: Some(chat_sessions.clone()),
             simulated_error: None,

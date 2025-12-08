@@ -28,7 +28,6 @@ mod tests {
                     admins_public_key: vec!["creator_public_key".to_string()]
                 },
                 Vec::new(),
-                Vec::new()
                 )),
         };
         let sut = AddParticipantsToChatContainerUseCaseImplementation::new(repository);
@@ -52,7 +51,6 @@ mod tests {
                     other_public_key: "creator_public_key".to_string(),
                 },
                 Vec::new(),
-                Vec::new()
                 )),
         };
         let sut = AddParticipantsToChatContainerUseCaseImplementation::new(repository);

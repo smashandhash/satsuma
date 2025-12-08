@@ -5,13 +5,22 @@ use crate::{
         ChatContainerRepositoryError
     },
 };
+use std::sync::Arc;
 
 pub trait RemoveParticipantsFromChatContainerUseCase {
     fn execute(&self, chat_container_id: String, actor_public_key: String, participant_public_keys: Vec<String>) -> Result<(), RemoveParticipantsFromChatContainerUseCaseError>;
 }
 
 pub struct RemoveParticipantsFromChatContainerUseCaseImplementation<R: ChatContainerRepository> {
-    repository: R,
+    repository: Arc<R>,
+}
+
+impl<R: ChatContainerRepository> RemoveParticipantsFromChatContainerUseCaseImplementation<R> {
+    pub fn new(repository: Arc<R>) -> Self {
+        Self {
+            repository
+        }
+    }
 }
 
 impl<R: ChatContainerRepository> RemoveParticipantsFromChatContainerUseCase for RemoveParticipantsFromChatContainerUseCaseImplementation <R> {
