@@ -21,6 +21,10 @@ impl LocalStorage for LocalStorageStub {
     }
 
     fn load_secret_key(&self) -> Result<String, String> {
-        Ok("Secret Key".to_string())
+        if let Some(simulated_error) = &self.simulated_error {
+            Err(simulated_error.clone())
+        } else {
+            Ok("Secret Key".to_string())
+        }
     }
 }
