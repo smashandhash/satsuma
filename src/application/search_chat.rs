@@ -25,7 +25,9 @@ impl<R: ChatContainerRepository> SearchChatUseCaseImplementation<R> {
 
 impl<R: ChatContainerRepository> SearchChatUseCase for SearchChatUseCaseImplementation<R> {
     fn execute(&self, keyword: String) -> Result<Vec<ChatContainer>, SearchChatUseCaseError> {
-        // TODO: Learn on how to implement search logic
+        let containers = self.repository.search(keyword).map_or(|e| SearchChatUseCaseError::RepositoryError(e))?;
+
+        Ok(containers)
     }
 }
 
