@@ -23,4 +23,12 @@ impl ChatContainerRepository for ChatContainerRepositoryStub {
             Ok(self.mocked_chat_container.clone().expect("mocked_container must be provided when no error"))
         }
     }
+
+    fn search(&self, _keyword: String) -> Result<Vec<ChatContainer>, ChatContainerRepositoryError> {
+        if let Some(err) = &self.simulated_error {
+            Err(err.clone())
+        } else {
+            Ok(Vec::new())
+        }
+    }
 }
