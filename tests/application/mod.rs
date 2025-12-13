@@ -6,3 +6,4 @@ mod create_direct_chat_test;
 mod add_participants_to_chat_container_test;
 mod remove_participant_from_conversation_test;
 mod chat_session_list_test;
+mod search_chat_test;

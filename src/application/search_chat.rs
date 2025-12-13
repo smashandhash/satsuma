@@ -16,7 +16,7 @@ pub struct SearchChatUseCaseImplementation<R: ChatContainerRepository> {
 }
 
 impl<R: ChatContainerRepository> SearchChatUseCaseImplementation<R> {
-    fn new(repository: Arc<R>) -> Self {
+    pub fn new(repository: Arc<R>) -> Self {
         Self {
             repository
         }
@@ -25,7 +25,7 @@ impl<R: ChatContainerRepository> SearchChatUseCaseImplementation<R> {
 
 impl<R: ChatContainerRepository> SearchChatUseCase for SearchChatUseCaseImplementation<R> {
     fn execute(&self, keyword: String) -> Result<Vec<ChatContainer>, SearchChatUseCaseError> {
-        let containers = self.repository.search(keyword).map_or(|e| SearchChatUseCaseError::RepositoryError(e))?;
+        let containers = self.repository.search(keyword).map_err(|e| SearchChatUseCaseError::RepositoryError(e))?;
 
         Ok(containers)
     }
