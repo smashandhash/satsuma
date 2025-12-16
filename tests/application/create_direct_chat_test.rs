@@ -13,6 +13,7 @@ mod tests {
         infrastructure::chat_container_repository::ChatContainerRepositoryError
     };
     use crate::helper::chat_container_repository_stub::ChatContainerRepositoryStub;
+    use std::sync::Arc;
 
     #[test]
     fn successfully_create_direct_chat() {
@@ -22,10 +23,10 @@ mod tests {
             "id".to_string(), 
             ChatContainerContext::Direct { other_public_key: recipient_public_key.clone() },
             vec![sender_public_key.clone(), recipient_public_key.clone()]);
-        let repository = ChatContainerRepositoryStub {
+        let repository = Arc::new(ChatContainerRepositoryStub {
             simulated_error: None,
             mocked_chat_container: Some(chat_container.clone())
-        };
+        });
         let sut = CreateDirectChatUseCaseImplementation::new(repository);
 
         let result = sut.execute(&sender_public_key, &recipient_public_key);
@@ -43,10 +44,10 @@ mod tests {
             "id".to_string(),
             ChatContainerContext::Direct { other_public_key: "other_public_key".to_string() },
             Vec::new());
-        let repository = ChatContainerRepositoryStub {
+        let repository = Arc::new(ChatContainerRepositoryStub {
             simulated_error: None,
             mocked_chat_container: Some(chat_container.clone())
-        };
+        });
         let sut = CreateDirectChatUseCaseImplementation::new(repository);
 
         let result = sut.execute("", "");
@@ -60,10 +61,10 @@ mod tests {
         let sender_public_key = "sender_public_key".to_string();
         let recipient_public_key = "recipient_public_key".to_string();
         let simulated_error = ChatContainerRepositoryError::SaveFailed;
-        let repository = ChatContainerRepositoryStub {
+        let repository = Arc::new(ChatContainerRepositoryStub {
             simulated_error: Some(simulated_error.clone()),
             mocked_chat_container: None
-        };
+        });
         let sut = CreateDirectChatUseCaseImplementation::new(repository);
 
         let result = sut.execute(&sender_public_key, &recipient_public_key);

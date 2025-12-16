@@ -5,14 +5,24 @@ use crate::infrastructure::{
     relay_publisher::RelayPublisherError
 };
 use nostr_sdk::prelude::*;
+use std::sync::Arc;
 
 pub trait RegisterUserUseCase {
     fn execute(&self, desired_name: &str) -> Result<User, RegisterUserUseCaseError>;
 }
 
 pub struct NostrRegisterUserUseCase<S: LocalStorage, R: RelayPublisher> {
-    pub storage: S,
-    pub relay_publisher: R
+    pub storage: Arc<S>,
+    pub relay_publisher: Arc<R>
+}
+
+impl<S: LocalStorage, R: RelayPublisher> NostrRegisterUserUseCase<S, R> {
+    pub fn new(storage: Arc<S>, relay_publisher: Arc<R>) -> Self {
+        Self {
+            storage,
+            relay_publisher,
+        }
+    }
 }
 
 impl<S, R> RegisterUserUseCase for NostrRegisterUserUseCase<S, R> where S: LocalStorage, R: RelayPublisher {

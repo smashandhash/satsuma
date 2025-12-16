@@ -1,9 +1,12 @@
-use crate::domain::user::User;
-use crate::infrastructure::{
-    relay_publisher::RelayPublisher,
-    relay_publisher::RelayPublisherError
+use crate::{
+    domain::user::User,
+    infrastructure::{
+        relay_publisher::RelayPublisher,
+        relay_publisher::RelayPublisherError,
+    },
 };
 use nostr_sdk::Metadata;
+use std::sync::Arc;
 
 pub trait ChangeNameUseCase {
     fn execute(&mut self, new_name: String) -> Result<(), ChangeNameUseCaseError>;
@@ -11,7 +14,16 @@ pub trait ChangeNameUseCase {
 
 pub struct NostrChangeNameUseCase<'a, R: RelayPublisher> {
     pub user: &'a mut User,
-    pub relay_publisher: R,
+    pub relay_publisher: Arc<R>,
+}
+
+impl<'a, R: RelayPublisher> NostrChangeNameUseCase<'a, R> {
+    pub fn new(user: &'a mut User, relay_publisher: Arc<R>) -> Self {
+        Self {
+            user,
+            relay_publisher
+        }
+    }
 }
 
 impl<'a, R: RelayPublisher> ChangeNameUseCase for NostrChangeNameUseCase<'a, R> {

@@ -22,7 +22,7 @@ mod tests {
         let provider = Arc::new(KeyProviderStub { simulated_error: None });
         let repository = Arc::new(MessageRepositoryStub::new(None));
         let storage = Arc::new(LocalStorageStub { simulated_error: None });
-        let sut = NostrSendMessageUseCase { provider, repository, storage };
+        let sut = NostrSendMessageUseCase::new(provider, repository, storage);
 
         let result = sut.execute(content.to_string(), "session_id".to_string(), ChatContainerContext::Direct { other_public_key: "other_public_key".to_string() }, None).await;
 
@@ -40,7 +40,7 @@ mod tests {
         let provider = Arc::new(KeyProviderStub { simulated_error: None });
         let repository = Arc::new(MessageRepositoryStub::new(None));
         let storage = Arc::new(LocalStorageStub { simulated_error: None });
-        let sut = NostrSendMessageUseCase { provider, repository, storage };
+        let sut = NostrSendMessageUseCase::new(provider, repository, storage);
 
         let result = sut.execute(content.to_string(), "session_id".to_string(), ChatContainerContext::Direct { other_public_key: "other_public_key".to_string() }, None).await;
 

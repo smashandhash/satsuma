@@ -10,6 +10,7 @@ mod tests {
         relay_publisher_stub::RelayPublisherStub,
         local_storage_stub::LocalStorageStub
     };
+    use std::sync::Arc;
 
     #[test]
     fn register_user_creates_new_user() {
@@ -71,9 +72,9 @@ mod tests {
     }
 
     fn make_sut(local_storage_error: Option<String>, relay_publisher_error: Option<RelayPublisherError>) -> NostrRegisterUserUseCase<LocalStorageStub, RelayPublisherStub> {
-        NostrRegisterUserUseCase {
-            storage: LocalStorageStub { simulated_error: local_storage_error },
-            relay_publisher: RelayPublisherStub { simulated_error: relay_publisher_error }
-        }
+        NostrRegisterUserUseCase::new(
+            Arc::new(LocalStorageStub { simulated_error: local_storage_error }),
+            Arc::new(RelayPublisherStub { simulated_error: relay_publisher_error })
+        )
     }
 }

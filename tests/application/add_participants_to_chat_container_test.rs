@@ -15,10 +15,11 @@ mod tests {
         infrastructure::chat_container_repository::ChatContainerRepositoryError
     };
     use crate::helper::chat_container_repository_stub::ChatContainerRepositoryStub;
+    use std::sync::Arc;
 
     #[test]
     fn add_participant_to_conversation() {
-        let repository = ChatContainerRepositoryStub {
+        let repository = Arc::new(ChatContainerRepositoryStub {
             simulated_error: None,
             mocked_chat_container: Some(ChatContainer::new(
                 "id".to_string(), 
@@ -29,7 +30,7 @@ mod tests {
                 },
                 Vec::new(),
                 )),
-        };
+        });
         let sut = AddParticipantsToChatContainerUseCaseImplementation::new(repository);
 
         let result = sut.execute(
@@ -43,7 +44,7 @@ mod tests {
 
     #[test]
     fn chat_container_error_cannot_add_participants() {
-        let repository = ChatContainerRepositoryStub {
+        let repository = Arc::new(ChatContainerRepositoryStub {
             simulated_error: None,
             mocked_chat_container: Some(ChatContainer::new(
                 "id".to_string(), 
@@ -52,7 +53,7 @@ mod tests {
                 },
                 Vec::new(),
                 )),
-        };
+        });
         let sut = AddParticipantsToChatContainerUseCaseImplementation::new(repository);
 
         let result = sut.execute(
@@ -67,12 +68,11 @@ mod tests {
 
     #[test]
     fn repository_error_cannot_add_participants() {
-        let repository = ChatContainerRepositoryStub {
+        let repository = Arc::new(ChatContainerRepositoryStub {
             simulated_error: Some(ChatContainerRepositoryError::ContainerNotFound),
             mocked_chat_container: None,
-        };
+        });
         let sut = AddParticipantsToChatContainerUseCaseImplementation::new(repository);
-
         let result = sut.execute(
             "chat_container_id".to_string(), 
             "creator_public_key".to_string(), 

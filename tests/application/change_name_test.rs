@@ -8,6 +8,7 @@ mod tests {
     };
     use crate::helper::relay_publisher_stub::RelayPublisherStub;
     use rstest::rstest;
+    use std::sync::Arc;
 
     #[rstest]
     #[case("change name with a new name", "Bob", true)]
@@ -19,8 +20,8 @@ mod tests {
         #[case] should_succeed: bool
         ) {
         let mut user = User::new("npub1234".into(), "Alice".into());
-        let relay_publisher = RelayPublisherStub { simulated_error: None };
-        let mut use_case = NostrChangeNameUseCase { user: &mut user, relay_publisher };
+        let relay_publisher = Arc::new(RelayPublisherStub { simulated_error: None });
+        let mut use_case = NostrChangeNameUseCase::new(&mut user, relay_publisher);
 
         let result = use_case.execute(new_name);
         
@@ -35,8 +36,8 @@ mod tests {
         #[case] error: RelayPublisherError
     ) {
         let mut user = User::new("npub1", "Alice");
-        let relay_publisher = RelayPublisherStub { simulated_error: Some(error) };
-        let mut use_case = NostrChangeNameUseCase { user: &mut user, relay_publisher };
+        let relay_publisher = Arc::new(RelayPublisherStub { simulated_error: Some(error) });
+        let mut use_case = NostrChangeNameUseCase::new(&mut user, relay_publisher);
 
         let result = use_case.execute("Alisa".to_string());
 

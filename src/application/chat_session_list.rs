@@ -5,17 +5,18 @@ use crate::{
         ChatSessionRepositoryError
     },
 };
+use std::sync::Arc;
 
 pub trait ChatSessionListUseCase {
     fn execute(&self, container_id: String) -> Result<Vec<ChatSession>, ChatSessionListUseCaseError>;
 }
 
 pub struct ChatSessionListUseCaseImplementation <R: ChatSessionRepository> {
-    repository: R,
+    repository: Arc<R>,
 }
 
 impl<R: ChatSessionRepository> ChatSessionListUseCaseImplementation <R> {
-    pub fn new(repository: R) -> Self {
+    pub fn new(repository: Arc<R>) -> Self {
         Self { repository }
     }
 }

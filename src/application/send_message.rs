@@ -42,6 +42,14 @@ pub struct NostrSendMessageUseCase<K: KeyProvider, R: MessageRepository, S: Loca
 
 impl<K: KeyProvider, R: MessageRepository, S: LocalStorage> NostrSendMessageUseCase<K, R, S> {
     pub const MAX_MESSAGE_LENGTH: usize = 2000;
+
+    pub fn new(provider: Arc<K>, repository: Arc<R>, storage: Arc<S>) -> Self {
+        Self {
+            provider,
+            repository,
+            storage,
+        }
+    }
 }
 
 #[async_trait]

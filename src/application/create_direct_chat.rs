@@ -9,17 +9,18 @@ use crate::{
     }
 };
 use md5::compute;
+use std::sync::Arc;
 
 pub trait CreateDirectChatUseCase {
     fn execute(&self, sender_public_key: &str, recipient_public_key: &str) -> Result<ChatContainer, CreateDirectChatUseCaseError>;
 }
 
 pub struct CreateDirectChatUseCaseImplementation<R: ChatContainerRepository> {
-    repository: R,
+    repository: Arc<R>,
 }
 
 impl<R: ChatContainerRepository> CreateDirectChatUseCaseImplementation<R> {
-    pub fn new(repository: R) -> Self {
+    pub fn new(repository: Arc<R>) -> Self {
         Self { repository }
     }
 
