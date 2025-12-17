@@ -7,6 +7,12 @@ pub struct LocalStorageStub {
     pub simulated_error: Option<String>
 }
 
+impl LocalStorageStub {
+    pub fn new(simulated_error: Option<String>) -> Self {
+        Self { simulated_error }
+    }
+}
+
 impl LocalStorage for LocalStorageStub {
     fn save_user(&self, _user: &User) -> Result<(), String> {
         if let Some(simulated_error) = &self.simulated_error {

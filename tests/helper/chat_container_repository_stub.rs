@@ -11,6 +11,15 @@ pub struct ChatContainerRepositoryStub {
     pub mocked_chat_container: Option<ChatContainer>,
 }
 
+impl ChatContainerRepositoryStub {
+    pub fn new(simulated_error: Option<ChatContainerRepositoryError>, mocked_chat_container: Option<ChatContainer>) -> Self {
+        Self {
+            simulated_error,
+            mocked_chat_container,
+        }
+    }
+}
+
 impl ChatContainerRepository for ChatContainerRepositoryStub {
     fn save(&self, _container: ChatContainer) -> Result<(), ChatContainerRepositoryError> {
         self.simulated_error.clone().map_or(Ok(()), Err)

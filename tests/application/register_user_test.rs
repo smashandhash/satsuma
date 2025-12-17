@@ -73,8 +73,8 @@ mod tests {
 
     fn make_sut(local_storage_error: Option<String>, relay_publisher_error: Option<RelayPublisherError>) -> NostrRegisterUserUseCase<LocalStorageStub, RelayPublisherStub> {
         NostrRegisterUserUseCase::new(
-            Arc::new(LocalStorageStub { simulated_error: local_storage_error }),
-            Arc::new(RelayPublisherStub { simulated_error: relay_publisher_error })
+            Arc::new(LocalStorageStub::new(local_storage_error)),
+            Arc::new(RelayPublisherStub::new(relay_publisher_error)),
         )
     }
 }

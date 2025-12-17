@@ -30,10 +30,10 @@ mod tests {
             },
             vec![creator_public_key.clone(), target_public_key.clone(), "other_public_key".to_string()]
             );
-        let repository = Arc::new(ChatContainerRepositoryStub {
-            simulated_error: None,
-            mocked_chat_container: Some(chat_container.clone()),
-        });
+        let repository = Arc::new(ChatContainerRepositoryStub::new(
+            None,
+            Some(chat_container.clone()),
+        ));
         let sut = RemoveParticipantsFromChatContainerUseCaseImplementation::new(repository);
 
         let result = sut.execute(chat_container_id.clone(), creator_public_key.clone(), vec![target_public_key.clone()]);
@@ -55,10 +55,10 @@ mod tests {
             },
             vec![creator_public_key.clone(), target_public_key.clone(), "other_public_key".to_string()]
             );
-        let repository = Arc::new(ChatContainerRepositoryStub {
-            simulated_error: None,
-            mocked_chat_container: Some(chat_container.clone()),
-        });
+        let repository = Arc::new(ChatContainerRepositoryStub::new(
+            None,
+            Some(chat_container.clone()),
+        ));
         let sut = RemoveParticipantsFromChatContainerUseCaseImplementation::new(repository);
 
         let result = sut.execute(chat_container_id.clone(), "other_public_key".to_string(), vec![target_public_key.clone()]);

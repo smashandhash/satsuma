@@ -13,7 +13,10 @@ mod tests {
 
     #[test]
     fn successfully_search_chat() {
-        let repository = Arc::new(ChatContainerRepositoryStub { simulated_error: None, mocked_chat_container: None });
+        let repository = Arc::new(ChatContainerRepositoryStub::new(
+                None, 
+                None 
+        ));
         let sut = SearchChatUseCaseImplementation::new(repository);
 
         let result = sut.execute("keyword".to_string());
@@ -24,7 +27,10 @@ mod tests {
     #[test]
     fn repository_error_failed_to_search_chat() {
         let error = ChatContainerRepositoryError::ContainerNotFound;
-        let repository = Arc::new(ChatContainerRepositoryStub { simulated_error: Some(error.clone()), mocked_chat_container: None });
+        let repository = Arc::new(ChatContainerRepositoryStub::new(
+                Some(error.clone()), 
+                None 
+        ));
         let sut = SearchChatUseCaseImplementation::new(repository);
 
         let result = sut.execute("keyword".to_string());

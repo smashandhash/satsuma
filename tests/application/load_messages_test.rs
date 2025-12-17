@@ -36,10 +36,10 @@ mod tests {
             ChatContainerContext::Direct { other_public_key: recipient_public_key.clone() },
             vec![sender_public_key.clone(), recipient_public_key.clone()]
             );
-        let container_repository = Arc::new(ChatContainerRepositoryStub {
-            simulated_error: None,
-            mocked_chat_container: Some(chat_container),
-        });
+        let container_repository = Arc::new(ChatContainerRepositoryStub::new(
+            None,
+            Some(chat_container),
+        ));
         let message_repository = Arc::new(MessageRepositoryStub::new(None));
         let sut = LoadMessagesUseCaseImplementation::new(storage, provider, container_repository, message_repository);
 
@@ -61,10 +61,10 @@ mod tests {
             ChatContainerContext::Direct { other_public_key: recipient_public_key.clone() },
             vec![sender_public_key.clone(), recipient_public_key.clone()]
             );
-        let container_repository = Arc::new(ChatContainerRepositoryStub {
-            simulated_error: None,
-            mocked_chat_container: Some(chat_container),
-        });
+        let container_repository = Arc::new(ChatContainerRepositoryStub::new(
+            None,
+            Some(chat_container),
+        ));
         let message_repository = Arc::new(MessageRepositoryStub::new(None));
         let sut = LoadMessagesUseCaseImplementation::new(storage, provider, container_repository, message_repository);
 
@@ -87,10 +87,10 @@ mod tests {
             ChatContainerContext::Direct { other_public_key: recipient_public_key.clone() },
             vec![sender_public_key.clone(), recipient_public_key.clone()]
             );
-        let container_repository = Arc::new(ChatContainerRepositoryStub {
-            simulated_error: None,
-            mocked_chat_container: Some(chat_container),
-        });
+        let container_repository = Arc::new(ChatContainerRepositoryStub::new(
+            None,
+            Some(chat_container),
+        ));
         let message_repository = Arc::new(MessageRepositoryStub::new(None));
         let sut = LoadMessagesUseCaseImplementation::new(storage, provider, container_repository, message_repository);
 
@@ -106,10 +106,10 @@ mod tests {
         let provider = Arc::new(KeyProviderStub { simulated_error: None });
         let chat_container_id = "id";
         let container_repository_error = ChatContainerRepositoryError::ContainerNotFound;
-        let container_repository = Arc::new(ChatContainerRepositoryStub {
-            simulated_error: Some(container_repository_error.clone()),
-            mocked_chat_container: None,
-        });
+        let container_repository = Arc::new(ChatContainerRepositoryStub::new(
+            Some(container_repository_error.clone()),
+            None,
+        ));
         let message_repository = Arc::new(MessageRepositoryStub::new(None));
         let sut = LoadMessagesUseCaseImplementation::new(storage, provider, container_repository, message_repository);
 
@@ -131,10 +131,10 @@ mod tests {
             ChatContainerContext::Direct { other_public_key: recipient_public_key.clone() },
             vec![sender_public_key.clone(), recipient_public_key.clone()]
             );
-        let container_repository = Arc::new(ChatContainerRepositoryStub {
-            simulated_error: None,
-            mocked_chat_container: Some(chat_container),
-        });
+        let container_repository = Arc::new(ChatContainerRepositoryStub::new(
+            None,
+            Some(chat_container),
+        ));
         let message_repository_error = MessageRepositoryError::UnknownError("Unknown Error".to_string());
         let message_repository = Arc::new(MessageRepositoryStub::new(Some(message_repository_error.clone())));
         let sut = LoadMessagesUseCaseImplementation::new(storage, provider, container_repository, message_repository);

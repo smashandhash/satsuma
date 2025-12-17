@@ -11,6 +11,15 @@ pub struct ChatSessionRepositoryStub {
     pub simulated_error: Option<ChatSessionRepositoryError>,
 }
 
+impl ChatSessionRepositoryStub {
+    pub fn new(mocked_chat_sessions: Option<Vec<ChatSession>>, simulated_error: Option<ChatSessionRepositoryError>) -> Self {
+        Self {
+            mocked_chat_sessions,
+            simulated_error,
+        }
+    }
+}
+
 impl ChatSessionRepository for ChatSessionRepositoryStub {
     fn save(&self, _chat_session: ChatSession) -> Result<(), ChatSessionRepositoryError> {
         self.simulated_error.clone().map_or(Ok(()), Err)

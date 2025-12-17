@@ -19,9 +19,9 @@ mod tests {
 
     #[test]
     fn add_participant_to_conversation() {
-        let repository = Arc::new(ChatContainerRepositoryStub {
-            simulated_error: None,
-            mocked_chat_container: Some(ChatContainer::new(
+        let repository = Arc::new(ChatContainerRepositoryStub::new(
+            None,
+            Some(ChatContainer::new(
                 "id".to_string(), 
                 ChatContainerContext::Group { 
                     group_type: ChatContainerGroupType::Private,
@@ -30,7 +30,7 @@ mod tests {
                 },
                 Vec::new(),
                 )),
-        });
+        ));
         let sut = AddParticipantsToChatContainerUseCaseImplementation::new(repository);
 
         let result = sut.execute(
@@ -44,16 +44,16 @@ mod tests {
 
     #[test]
     fn chat_container_error_cannot_add_participants() {
-        let repository = Arc::new(ChatContainerRepositoryStub {
-            simulated_error: None,
-            mocked_chat_container: Some(ChatContainer::new(
+        let repository = Arc::new(ChatContainerRepositoryStub::new(
+            None,
+            Some(ChatContainer::new(
                 "id".to_string(), 
                 ChatContainerContext::Direct { 
                     other_public_key: "creator_public_key".to_string(),
                 },
                 Vec::new(),
                 )),
-        });
+        ));
         let sut = AddParticipantsToChatContainerUseCaseImplementation::new(repository);
 
         let result = sut.execute(
@@ -68,10 +68,10 @@ mod tests {
 
     #[test]
     fn repository_error_cannot_add_participants() {
-        let repository = Arc::new(ChatContainerRepositoryStub {
-            simulated_error: Some(ChatContainerRepositoryError::ContainerNotFound),
-            mocked_chat_container: None,
-        });
+        let repository = Arc::new(ChatContainerRepositoryStub::new(
+            Some(ChatContainerRepositoryError::ContainerNotFound),
+            None,
+        ));
         let sut = AddParticipantsToChatContainerUseCaseImplementation::new(repository);
         let result = sut.execute(
             "chat_container_id".to_string(), 

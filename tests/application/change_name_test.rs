@@ -20,7 +20,7 @@ mod tests {
         #[case] should_succeed: bool
         ) {
         let mut user = User::new("npub1234".into(), "Alice".into());
-        let relay_publisher = Arc::new(RelayPublisherStub { simulated_error: None });
+        let relay_publisher = Arc::new(RelayPublisherStub::new(None));
         let mut use_case = NostrChangeNameUseCase::new(&mut user, relay_publisher);
 
         let result = use_case.execute(new_name);
@@ -36,7 +36,7 @@ mod tests {
         #[case] error: RelayPublisherError
     ) {
         let mut user = User::new("npub1", "Alice");
-        let relay_publisher = Arc::new(RelayPublisherStub { simulated_error: Some(error) });
+        let relay_publisher = Arc::new(RelayPublisherStub::new(Some(error)));
         let mut use_case = NostrChangeNameUseCase::new(&mut user, relay_publisher);
 
         let result = use_case.execute("Alisa".to_string());
