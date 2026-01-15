@@ -3,30 +3,47 @@ mod tests {
     use satsuma::domain::user::User;
 
     pub trait GetProfileUseCase {
-        fn execute(&self, profile_id: String) -> Result<User, GetProfileUseCaseError>;
+        fn execute(&self, public_key: String) -> Result<User, GetProfileUseCaseError>;
     }
 
-    pub struct GetProfileUseCaseImplementation;
+    pub struct GetProfileUseCaseImplementation<R: ProfileRepository> {
+        pub repository: R,
+    }
 
-    impl GetProfileUseCase for GetProfileUseCaseImplementation {
-        fn execute(&self, profile_id: String) -> Result<User, GetProfileUseCaseError> {
-            if profile_id == "not_found_id".to_string() {
-                return Err(GetProfileUseCaseError::ProfileNotFound)
-            }
-            Ok(User::new("public_key", "name"))
+    impl<R: ProfileRepository> GetProfileUseCaseImplementation<R> {
+        fn new(repository: R) -> Self {
+            Self { repository }
         }
+    }
+
+    impl<R: ProfileRepository> GetProfileUseCase for GetProfileUseCaseImplementation<R> {
+        fn execute(&self, public_key: String) -> Result<User, GetProfileUseCaseError> {
+            let user = self.repository.load(public_key).map_err(|e| GetProfileUseCaseError::ProfileRepositoryError(e))?;
+
+            Ok(user)
+        }
+    }
+
+    pub trait ProfileRepository {
+        fn load(&self, public_key: String) -> Result<User, ProfileRepositoryError>;
     }
 
     #[derive(Debug, Clone, PartialEq)]
     pub enum GetProfileUseCaseError {
+        ProfileRepositoryError(ProfileRepositoryError)
+    }
+
+    #[derive(Debug, Clone, PartialEq)]
+    pub enum ProfileRepositoryError {
         ProfileNotFound
     }
 
     #[test]
     fn get_profile_success() {
-        let profile_id = "profile_id".to_string();
-        let sut = GetProfileUseCaseImplementation;
-        let result = sut.execute(profile_id);
+        let repository = ProfileRepositoryStub::new(None);
+        let public_key = "public_key".to_string();
+        let sut = GetProfileUseCaseImplementation::new(repository);
+        let result = sut.execute(public_key);
         let expected_user = User::new("public_key", "name");
 
         assert!(result.is_ok());
@@ -35,11 +52,29 @@ mod tests {
 
     #[test]
     fn get_profile_failed() {
-        let profile_id = "not_found_id".to_string();
-        let sut = GetProfileUseCaseImplementation;
-        let result = sut.execute(profile_id);
+        let repository_error = ProfileRepositoryError::ProfileNotFound;
+        let repository = ProfileRepositoryStub::new(Some(repository_error.clone()));
+        let public_key = "not_found_id".to_string();
+        let sut = GetProfileUseCaseImplementation::new(repository);
+        let result = sut.execute(public_key);
         
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), GetProfileUseCaseError::ProfileNotFound);
+        assert_eq!(result.unwrap_err(), GetProfileUseCaseError::ProfileRepositoryError(repository_error));
+    }
+
+    pub struct ProfileRepositoryStub {
+        pub simulated_error: Option<ProfileRepositoryError>,
+    }
+
+    impl ProfileRepositoryStub {
+        fn new(simulated_error: Option<ProfileRepositoryError>) -> Self {
+            Self { simulated_error }
+        }
+    }
+
+    impl ProfileRepository for ProfileRepositoryStub {
+        fn load(&self, _public_key: String) -> Result<User, ProfileRepositoryError> {
+            self.simulated_error.clone().map_or(Ok(User::new("public_key", "name")), Err)
+        }
     }
 }
