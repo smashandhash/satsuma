@@ -40,13 +40,13 @@ mod tests {
     }
 
     #[rstest]
-    #[test("Success", None)]
-    #[test("Failed", ProfileRepositoryError::ProfileNotFound)]
+    #[case("Success", None)]
+    #[case("Failed", Some(ProfileRepositoryError::ProfileNotFound))]
     fn get_profile_based_on_repository(
         #[case] _label: &str,
         #[case] simulated_error: Option<ProfileRepositoryError>,
         ) {
-        let repository = ProfileRepositoryStub::new(Some(simulated_error));
+        let repository = ProfileRepositoryStub::new(simulated_error.clone());
         let public_key = "public_key".to_string();
         let sut = GetProfileUseCaseImplementation::new(repository);
         let result = sut.execute(public_key);
@@ -59,18 +59,6 @@ mod tests {
             assert!(result.is_ok());
             assert_eq!(result.unwrap(), expected_user);
         }
-    }
-
-    #[test]
-    fn get_profile_failed() {
-        let repository_error = ProfileRepositoryError::ProfileNotFound;
-        let repository = ProfileRepositoryStub::new(Some(repository_error.clone()));
-        let public_key = "not_found_id".to_string();
-        let sut = GetProfileUseCaseImplementation::new(repository);
-        let result = sut.execute(public_key);
-        
-        assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), GetProfileUseCaseError::ProfileRepositoryError(repository_error));
     }
 
     pub struct ProfileRepositoryStub {
