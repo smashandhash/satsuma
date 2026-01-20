@@ -8,3 +8,4 @@ mod remove_participant_from_conversation_test;
 mod chat_session_list_test;
 mod search_chat_test;
 mod get_profile_test;
+mod chat_user_list_test;
