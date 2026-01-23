@@ -77,6 +77,39 @@ mod tests {
         let sut = GetChatUserListUseCaseImplementation::new(chat_container_repository, profile_repository);
         let result = sut.execute("chat_container_id".to_string());
 
-        assert!(result.is_ok())
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn chat_container_repository_error_failed_to_get_chat_user_list() {
+        let chat_container_repository_simulated_error = ChatContainerRepositoryError::ContainerNotFound;
+        let chat_container_repository = ChatContainerRepositoryStub::new(Some(chat_container_repository_simulated_error.clone()), None);
+        let profile_repository = ProfileRepositoryStub::new(None);
+        let sut = GetChatUserListUseCaseImplementation::new(chat_container_repository, profile_repository);
+        let result = sut.execute("chat_container_id".to_string());
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), GetChatUserListUseCaseError::ChatContainerRepositoryError(chat_container_repository_simulated_error));
+    }
+
+    #[test]
+    fn profile_repository_error_failed_to_get_chat_user_list() {
+        let profile_repository_simulated_error = ProfileRepositoryError::ProfileNotFound;
+        let user_public_key = "user_public_key".to_string();
+        let other_public_key = "other_public_key".to_string();
+        let chat_container = ChatContainer::new(
+            "id".to_string(), 
+            ChatContainerContext::Direct {
+                other_public_key: other_public_key.clone()
+            }, 
+            vec![user_public_key.clone(), other_public_key.clone()]
+        );
+        let chat_container_repository = ChatContainerRepositoryStub::new(None, Some(chat_container));
+        let profile_repository = ProfileRepositoryStub::new(Some(profile_repository_simulated_error.clone()));
+        let sut = GetChatUserListUseCaseImplementation::new(chat_container_repository, profile_repository);
+        let result = sut.execute("chat_container_id".to_string());
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), GetChatUserListUseCaseError::ProfileRepositoryError(profile_repository_simulated_error.clone()));
     }
 }
