@@ -4,4 +4,4 @@ pub mod local_storage_stub;
 pub mod key_provider_stub;
 pub mod chat_container_repository_stub;
 pub mod chat_session_repository_stub;
-pub mod profile_repository_stub;
+pub mod user_repository_stub;

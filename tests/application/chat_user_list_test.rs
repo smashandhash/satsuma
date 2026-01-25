@@ -13,42 +13,42 @@ mod tests {
                 ChatContainerRepository,
                 ChatContainerRepositoryError,
             },
-            profile_repository::{
-                ProfileRepository,
-                ProfileRepositoryError,
+            user_repository::{
+                UserRepository,
+                UserRepositoryError,
             },
         },
     };
     use crate::helper::{
         chat_container_repository_stub::ChatContainerRepositoryStub,
-        profile_repository_stub::ProfileRepositoryStub,
+        user_repository_stub::UserRepositoryStub,
     };
 
     pub trait GetChatUserListUseCase {
         fn execute(&self, chat_container_id: String) -> Result<Vec<User>, GetChatUserListUseCaseError>;
     }
 
-    pub struct GetChatUserListUseCaseImplementation<CCR: ChatContainerRepository, PR: ProfileRepository> {
+    pub struct GetChatUserListUseCaseImplementation<CCR: ChatContainerRepository, UR: UserRepository> {
         chat_container_repository: CCR,
-        profile_repository: PR
+        user_repository: UR
     }
 
-    impl<CCR: ChatContainerRepository, PR: ProfileRepository> GetChatUserListUseCaseImplementation<CCR, PR> {
-        pub fn new(chat_container_repository: CCR, profile_repository: PR) -> Self {
+    impl<CCR: ChatContainerRepository, UR: UserRepository> GetChatUserListUseCaseImplementation<CCR, UR> {
+        pub fn new(chat_container_repository: CCR, user_repository: UR) -> Self {
             Self {
                 chat_container_repository,
-                profile_repository
+                user_repository
             }
         }
     }
 
-    impl<CCR: ChatContainerRepository, PR: ProfileRepository> GetChatUserListUseCase for GetChatUserListUseCaseImplementation<CCR, PR> {
+    impl<CCR: ChatContainerRepository, UR: UserRepository> GetChatUserListUseCase for GetChatUserListUseCaseImplementation<CCR, UR> {
         fn execute(&self, chat_container_id: String) -> Result<Vec<User>, GetChatUserListUseCaseError> {
             let chat_container = self.chat_container_repository.load(chat_container_id).map_err(|e| GetChatUserListUseCaseError::ChatContainerRepositoryError(e))?;
 
             let mut result: Vec<User> = Vec::new();
             for public_key in chat_container.participant_public_keys.iter() {
-                result.push(self.profile_repository.load(public_key.to_string()).map_err(|e| GetChatUserListUseCaseError::ProfileRepositoryError(e))?);
+                result.push(self.user_repository.load(public_key.to_string()).map_err(|e| GetChatUserListUseCaseError::UserRepositoryError(e))?);
             }
 
             Ok(result)
@@ -58,7 +58,7 @@ mod tests {
     #[derive(Debug, Clone, PartialEq)]
     pub enum GetChatUserListUseCaseError {
         ChatContainerRepositoryError(ChatContainerRepositoryError),
-        ProfileRepositoryError(ProfileRepositoryError),
+        UserRepositoryError(UserRepositoryError),
     }
 
     #[test]
@@ -73,8 +73,8 @@ mod tests {
             vec![user_public_key.clone(), other_public_key.clone()]
         );
         let chat_container_repository = ChatContainerRepositoryStub::new(None, Some(chat_container));
-        let profile_repository = ProfileRepositoryStub::new(None);
-        let sut = GetChatUserListUseCaseImplementation::new(chat_container_repository, profile_repository);
+        let user_repository = UserRepositoryStub::new(None);
+        let sut = GetChatUserListUseCaseImplementation::new(chat_container_repository, user_repository);
         let result = sut.execute("chat_container_id".to_string());
 
         assert!(result.is_ok());
@@ -84,8 +84,8 @@ mod tests {
     fn chat_container_repository_error_failed_to_get_chat_user_list() {
         let chat_container_repository_simulated_error = ChatContainerRepositoryError::ContainerNotFound;
         let chat_container_repository = ChatContainerRepositoryStub::new(Some(chat_container_repository_simulated_error.clone()), None);
-        let profile_repository = ProfileRepositoryStub::new(None);
-        let sut = GetChatUserListUseCaseImplementation::new(chat_container_repository, profile_repository);
+        let user_repository = UserRepositoryStub::new(None);
+        let sut = GetChatUserListUseCaseImplementation::new(chat_container_repository, user_repository);
         let result = sut.execute("chat_container_id".to_string());
 
         assert!(result.is_err());
@@ -93,8 +93,8 @@ mod tests {
     }
 
     #[test]
-    fn profile_repository_error_failed_to_get_chat_user_list() {
-        let profile_repository_simulated_error = ProfileRepositoryError::ProfileNotFound;
+    fn user_repository_error_failed_to_get_chat_user_list() {
+        let user_repository_simulated_error = UserRepositoryError::UserNotFound;
         let user_public_key = "user_public_key".to_string();
         let other_public_key = "other_public_key".to_string();
         let chat_container = ChatContainer::new(
@@ -105,11 +105,11 @@ mod tests {
             vec![user_public_key.clone(), other_public_key.clone()]
         );
         let chat_container_repository = ChatContainerRepositoryStub::new(None, Some(chat_container));
-        let profile_repository = ProfileRepositoryStub::new(Some(profile_repository_simulated_error.clone()));
-        let sut = GetChatUserListUseCaseImplementation::new(chat_container_repository, profile_repository);
+        let user_repository = UserRepositoryStub::new(Some(user_repository_simulated_error.clone()));
+        let sut = GetChatUserListUseCaseImplementation::new(chat_container_repository, user_repository);
         let result = sut.execute("chat_container_id".to_string());
 
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), GetChatUserListUseCaseError::ProfileRepositoryError(profile_repository_simulated_error.clone()));
+        assert_eq!(result.unwrap_err(), GetChatUserListUseCaseError::UserRepositoryError(user_repository_simulated_error.clone()));
     }
 }
