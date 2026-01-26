@@ -11,6 +11,7 @@ mod tests {
     };
     use crate::helper::user_repository_stub::UserRepositoryStub;
     use rstest::rstest;
+    use std::sync::Arc;
 
     #[rstest]
     #[case("Success", None)]
@@ -19,7 +20,7 @@ mod tests {
         #[case] _label: &str,
         #[case] simulated_error: Option<UserRepositoryError>,
         ) {
-        let repository = UserRepositoryStub::new(simulated_error.clone());
+        let repository = Arc::new(UserRepositoryStub::new(simulated_error.clone()));
         let public_key = "public_key".to_string();
         let sut = GetProfileUseCaseImplementation::new(repository);
         let result = sut.execute(public_key);

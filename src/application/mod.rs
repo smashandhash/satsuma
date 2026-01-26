@@ -8,3 +8,4 @@ pub mod remove_participants_from_chat_container;
 pub mod chat_session_list;
 pub mod search_chat;
 pub mod get_profile;
+pub mod get_chat_user_list;

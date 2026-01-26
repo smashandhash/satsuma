@@ -5,17 +5,18 @@ use crate::{
         UserRepositoryError,
     },
 };
+use std::sync::Arc;
 
 pub trait GetProfileUseCase {
     fn execute(&self, public_key: String) -> Result<User, GetProfileUseCaseError>;
 }
 
 pub struct GetProfileUseCaseImplementation<R: UserRepository> {
-    pub repository: R,
+    pub repository: Arc<R>,
 }
 
 impl<R: UserRepository> GetProfileUseCaseImplementation<R> {
-    pub fn new(repository: R) -> Self {
+    pub fn new(repository: Arc<R>) -> Self {
         Self { repository }
     }
 }
