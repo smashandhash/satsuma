@@ -9,13 +9,13 @@ mod tests {
 
     pub trait ModifyParticipantRolesUseCase {
         // TODO: Decide the Role, either it's an enum or a regular String.
-        fn execute(&self, group_id: String, public_key: String, previous_event_id: Option<String>);
+        fn execute(&self, group_id: String, public_key: String, target_public_key: String, previous_event_id: Option<String>);
     }
 
     pub struct ModifyParticipantRolesUseCaseImplementation;
 
     impl ModifyParticipantRolesUseCase for ModifyParticipantRolesUseCaseImplementation {
-        fn execute(&self, group_id: String, public_key: String, previous_event_id: Option<String>) {
+        fn execute(&self, group_id: String, public_key: String, target_public_key: String, previous_event_id: Option<String>) {
             // TODO: Set the user's public key who do this thing
             // TODO: Kind is 9000
             // TODO: Create tags variable with 3 properties
@@ -25,5 +25,16 @@ mod tests {
             // it.
             // TODO: Set the content into fixed value of "Modify a participant of `target's public_key` into a role of `target_role`"
         }
+    }
+
+    #[test]
+    fn success_modify_participant_role() {
+        let group_id = "group_id".to_string();
+        let user_public_key = "user_public_key".to_string();
+        let target_public_key = "target_public_key".to_string();
+        let previous_event_id = "previous_event_id".to_string();
+        let sut = ModifyParticipantRolesUseCaseImplementation;
+
+        sut.execute(group_id, user_public_key, target_public_key, Some(previous_event_id));
     }
 }
