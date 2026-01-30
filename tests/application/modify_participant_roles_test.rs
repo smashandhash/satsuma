@@ -22,6 +22,7 @@ mod tests {
     impl ModifyParticipantRolesUseCase for ModifyParticipantRolesUseCaseImplementation {
         fn execute(&self, group_id: String, public_key: String, target_public_key: String, previous_event_id: Option<String>) -> Result<(), ModifyParticipantRolesUseCaseError> {
             if group_id.is_empty() {
+                return Err(ModifyParticipantRolesUseCaseError::GroupIDEmpty)
             }
             // TODO: Set the user's public key who do this thing
             // TODO: Kind is 9000
