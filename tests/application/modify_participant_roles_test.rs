@@ -9,13 +9,20 @@ mod tests {
 
     pub trait ModifyParticipantRolesUseCase {
         // TODO: Decide the Role, either it's an enum or a regular String.
-        fn execute(&self, group_id: String, public_key: String, target_public_key: String, previous_event_id: Option<String>);
+        fn execute(&self, group_id: String, public_key: String, target_public_key: String, previous_event_id: Option<String>) -> Result<(), ModifyParticipantRolesUseCaseError>;
     }
 
     pub struct ModifyParticipantRolesUseCaseImplementation;
 
+    impl ModifyParticipantRolesUseCaseImplementation {
+        pub fn new() -> Self {
+        }
+    }
+
     impl ModifyParticipantRolesUseCase for ModifyParticipantRolesUseCaseImplementation {
-        fn execute(&self, group_id: String, public_key: String, target_public_key: String, previous_event_id: Option<String>) {
+        fn execute(&self, group_id: String, public_key: String, target_public_key: String, previous_event_id: Option<String>) -> Result<(), ModifyParticipantRolesUseCaseError> {
+            if group_id.is_empty() {
+            }
             // TODO: Set the user's public key who do this thing
             // TODO: Kind is 9000
             // TODO: Create tags variable with 3 properties
@@ -25,6 +32,13 @@ mod tests {
             // it.
             // TODO: Set the content into fixed value of "Modify a participant of `target's public_key` into a role of `target_role`"
         }
+    }
+
+    #[derive(Debug, Clone, PartialEq)]
+    pub enum ModifyParticipantRolesUseCaseError {
+        GroupIDEmpty,
+        AssignerPublicKeyEmpty,
+        TargetPublicKeyEmpty,
     }
 
     #[test]
