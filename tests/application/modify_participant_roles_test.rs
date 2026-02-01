@@ -5,24 +5,35 @@ mod tests {
             user::User,
             chat_container::ChatContainer,
         },
+        infrastructure::local_storage::LocalStorage,
     };
 
     pub trait ModifyParticipantRolesUseCase {
         // TODO: Decide the Role, either it's an enum or a regular String.
-        fn execute(&self, group_id: String, public_key: String, target_public_key: String, previous_event_id: Option<String>) -> Result<(), ModifyParticipantRolesUseCaseError>;
+        fn execute(&self, group_id: String, target_public_key: String, previous_event_id: Option<String>) -> Result<(), ModifyParticipantRolesUseCaseError>;
     }
 
-    pub struct ModifyParticipantRolesUseCaseImplementation;
+    pub struct ModifyParticipantRolesUseCaseImplementation<S: LocalStorage> {
+        pub storage: S,
+    }
 
-    impl ModifyParticipantRolesUseCaseImplementation {
-        pub fn new() -> Self {
+    impl<S: LocalStorage> ModifyParticipantRolesUseCaseImplementation<S> {
+        pub fn new(storage: S) -> Self {
+            Self {
+                storage,
+            }
         }
     }
 
-    impl ModifyParticipantRolesUseCase for ModifyParticipantRolesUseCaseImplementation {
-        fn execute(&self, group_id: String, public_key: String, target_public_key: String, previous_event_id: Option<String>) -> Result<(), ModifyParticipantRolesUseCaseError> {
+    impl<S: LocalStorage> ModifyParticipantRolesUseCase for ModifyParticipantRolesUseCaseImplementation<S> {
+        fn execute(&self, group_id: String, target_public_key: String, previous_event_id: Option<String>) -> Result<(), ModifyParticipantRolesUseCaseError> {
+            let public_key = self.storage.load_saved_user().unwrap();
             if group_id.is_empty() {
-                return Err(ModifyParticipantRolesUseCaseError::GroupIDEmpty)
+                return Err(ModifyParticipantRolesUseCaseError::GroupIDEmpty);
+            }
+
+            if public_key.is_empty() {
+                return Err(ModifyParticipantRolesUseCaseError::AssignerPublicKeyEmpty);
             }
             // TODO: Set the user's public key who do this thing
             // TODO: Kind is 9000
