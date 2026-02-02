@@ -10,3 +10,12 @@ pub enum UserRepositoryError {
     UserNotFound,
     FailedToChangeUserRole
 }
+
+// Note for change_role implementation
+// TODO: Set the user's public key who do this thing
+// TODO: Kind is 9000
+// TODO: Create tags variable with 3 properties
+// TODO: 1. "h" for group_id
+// TODO: 2. "p" for target's public key
+// TODO: 3. "previous" for an optional previous event_id, but it's recommended to have it.
+// TODO: Set the content into fixed value of "Modify a participant of `target's public_key` into a role of `target_role`" 

@@ -32,7 +32,7 @@ mod tests {
 
     impl<S: LocalStorage, R: UserRepository> ModifyParticipantRolesUseCase for ModifyParticipantRolesUseCaseImplementation<S, R> {
         fn execute(&self, group_id: String, target_public_key: String, roles: Vec<String>, previous_event_id: Option<String>) -> Result<(), ModifyParticipantRolesUseCaseError> {
-            let assigner_user = self.storage.load_saved_user().map_err(|_| ModifyParticipantRolesUseCaseError::AssignerNotFound).unwrap();
+            let assigner_user = self.storage.load_saved_user().map_err(|_| ModifyParticipantRolesUseCaseError::AssignerNotFound)?;
 
             if group_id.is_empty() {
                 return Err(ModifyParticipantRolesUseCaseError::GroupIDEmpty)
@@ -52,16 +52,7 @@ mod tests {
                 }
             }
 
-            Ok(self.repository.change_role(group_id, assigner_user.public_key, target_public_key, roles, previous_event_id).map_err(|e| ModifyParticipantRolesUseCaseError::RepositoryError(e)).unwrap()) 
-
-            // TODO: Set the user's public key who do this thing
-            // TODO: Kind is 9000
-            // TODO: Create tags variable with 3 properties
-            // TODO: 1. "h" for group_id
-            // TODO: 2. "p" for target's public key
-            // TODO: 3. "previous" for an optional previous event_id, but it's recommended to have
-            // it.
-            // TODO: Set the content into fixed value of "Modify a participant of `target's public_key` into a role of `target_role`"
+            Ok(self.repository.change_role(group_id, assigner_user.public_key, target_public_key, roles, previous_event_id).map_err(|e| ModifyParticipantRolesUseCaseError::RepositoryError(e))?) 
         }
     }
 
@@ -88,5 +79,38 @@ mod tests {
         let result = sut.execute(group_id, target_public_key, roles, Some(previous_event_id));
 
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn local_storage_error_failed_to_modify_participant_role() {
+        let group_id = "group_id".to_string();
+        let target_public_key = "target_public_key".to_string();
+        let previous_event_id = "previous_event_id".to_string();
+        let roles = vec!["Admin".to_string(), "Supervisor".to_string()];
+        let local_storage = LocalStorageStub::new(Some("Error Local Storage".to_string()));
+        let repository = UserRepositoryStub::new(None);
+        let sut = ModifyParticipantRolesUseCaseImplementation::new(local_storage, repository);
+
+        let result = sut.execute(group_id, target_public_key, roles, Some(previous_event_id));
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), ModifyParticipantRolesUseCaseError::AssignerNotFound);
+    }
+
+    #[test]
+    fn repository_error_failed_to_modify_participant_role() {
+        let group_id = "group_id".to_string();
+        let target_public_key = "target_public_key".to_string();
+        let previous_event_id = "previous_event_id".to_string();
+        let roles = vec!["Admin".to_string(), "Supervisor".to_string()];
+        let local_storage = LocalStorageStub::new(None);
+        let repository_error = UserRepositoryError::FailedToChangeUserRole;
+        let repository = UserRepositoryStub::new(Some(repository_error.clone()));
+        let sut = ModifyParticipantRolesUseCaseImplementation::new(local_storage, repository);
+
+        let result = sut.execute(group_id, target_public_key, roles, Some(previous_event_id));
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), ModifyParticipantRolesUseCaseError::RepositoryError(repository_error));
     }
 }
