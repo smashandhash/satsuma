@@ -1,40 +1,59 @@
 #[cfg(test)]
 mod tests {
-    use satsuma::{
-        domain::{
-            user::User,
-            chat_container::ChatContainer,
+    use satsuma::infrastructure::{
+        local_storage::LocalStorage,
+        user_repository::{
+            UserRepository,
+            UserRepositoryError,
         },
-        infrastructure::local_storage::LocalStorage,
+    };
+    use crate::helper::{
+        local_storage_stub::LocalStorageStub,
+        user_repository_stub::UserRepositoryStub,
     };
 
     pub trait ModifyParticipantRolesUseCase {
-        // TODO: Decide the Role, either it's an enum or a regular String.
-        fn execute(&self, group_id: String, target_public_key: String, previous_event_id: Option<String>) -> Result<(), ModifyParticipantRolesUseCaseError>;
+        fn execute(&self, group_id: String, target_public_key: String, roles: Vec<String>, previous_event_id: Option<String>) -> Result<(), ModifyParticipantRolesUseCaseError>;
     }
 
-    pub struct ModifyParticipantRolesUseCaseImplementation<S: LocalStorage> {
+    pub struct ModifyParticipantRolesUseCaseImplementation<S: LocalStorage, R: UserRepository> {
         pub storage: S,
+        pub repository: R,
     }
 
-    impl<S: LocalStorage> ModifyParticipantRolesUseCaseImplementation<S> {
-        pub fn new(storage: S) -> Self {
+    impl<S: LocalStorage, R: UserRepository> ModifyParticipantRolesUseCaseImplementation<S, R> {
+        pub fn new(storage: S, repository: R) -> Self {
             Self {
                 storage,
+                repository,
             }
         }
     }
 
-    impl<S: LocalStorage> ModifyParticipantRolesUseCase for ModifyParticipantRolesUseCaseImplementation<S> {
-        fn execute(&self, group_id: String, target_public_key: String, previous_event_id: Option<String>) -> Result<(), ModifyParticipantRolesUseCaseError> {
-            let public_key = self.storage.load_saved_user().unwrap();
+    impl<S: LocalStorage, R: UserRepository> ModifyParticipantRolesUseCase for ModifyParticipantRolesUseCaseImplementation<S, R> {
+        fn execute(&self, group_id: String, target_public_key: String, roles: Vec<String>, previous_event_id: Option<String>) -> Result<(), ModifyParticipantRolesUseCaseError> {
+            let assigner_user = self.storage.load_saved_user().map_err(|_| ModifyParticipantRolesUseCaseError::AssignerNotFound).unwrap();
+
             if group_id.is_empty() {
-                return Err(ModifyParticipantRolesUseCaseError::GroupIDEmpty);
+                return Err(ModifyParticipantRolesUseCaseError::GroupIDEmpty)
             }
 
-            if public_key.is_empty() {
-                return Err(ModifyParticipantRolesUseCaseError::AssignerPublicKeyEmpty);
+            if target_public_key.is_empty() {
+                return Err(ModifyParticipantRolesUseCaseError::TargetPublicKeyEmpty)
             }
+
+            if roles.len() == 0 {
+                return Err(ModifyParticipantRolesUseCaseError::EmptyAssignedRoles)
+            }
+
+            for role in roles.clone() {
+                if role.is_empty() {
+                    return Err(ModifyParticipantRolesUseCaseError::RoleIsEmpty)
+                }
+            }
+
+            Ok(self.repository.change_role(group_id, assigner_user.public_key, target_public_key, roles, previous_event_id).map_err(|e| ModifyParticipantRolesUseCaseError::RepositoryError(e)).unwrap()) 
+
             // TODO: Set the user's public key who do this thing
             // TODO: Kind is 9000
             // TODO: Create tags variable with 3 properties
@@ -48,19 +67,26 @@ mod tests {
 
     #[derive(Debug, Clone, PartialEq)]
     pub enum ModifyParticipantRolesUseCaseError {
+        AssignerNotFound,
         GroupIDEmpty,
-        AssignerPublicKeyEmpty,
         TargetPublicKeyEmpty,
+        EmptyAssignedRoles,
+        RoleIsEmpty,
+        RepositoryError(UserRepositoryError),
     }
 
     #[test]
     fn success_modify_participant_role() {
         let group_id = "group_id".to_string();
-        let user_public_key = "user_public_key".to_string();
         let target_public_key = "target_public_key".to_string();
         let previous_event_id = "previous_event_id".to_string();
-        let sut = ModifyParticipantRolesUseCaseImplementation;
+        let roles = vec!["Admin".to_string(), "Supervisor".to_string()];
+        let local_storage = LocalStorageStub::new(None);
+        let repository = UserRepositoryStub::new(None);
+        let sut = ModifyParticipantRolesUseCaseImplementation::new(local_storage, repository);
 
-        sut.execute(group_id, user_public_key, target_public_key, Some(previous_event_id));
+        let result = sut.execute(group_id, target_public_key, roles, Some(previous_event_id));
+
+        assert!(result.is_ok());
     }
 }

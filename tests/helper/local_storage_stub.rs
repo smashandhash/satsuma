@@ -33,4 +33,12 @@ impl LocalStorage for LocalStorageStub {
             Ok("Secret Key".to_string())
         }
     }
+
+    fn load_saved_user(&self) -> Result<User, String> {
+        if let Some(simulated_error) = &self.simulated_error {
+            Err(simulated_error.clone())
+        } else {
+            Ok(User::new("public_key", "name"))
+        }
+    }
 }
