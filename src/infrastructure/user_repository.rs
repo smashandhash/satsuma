@@ -5,6 +5,18 @@ pub trait UserRepository {
     fn change_role(&self, group_id: String, assigner_public_key: String, target_public_key: String, roles: Vec<String>, previous_event_id: Option<String>) -> Result<(), UserRepositoryError>;
 }
 
+pub struct NostrUserRepository;
+
+impl UserRepository for NostrUserRepository {
+    fn load(&self, _public_key: String) -> Result<User, UserRepositoryError> {
+        return Err(UserRepositoryError::UserNotFound)
+    }
+
+    fn change_role(&self, _group_id: String, _assigner_public_key: String, _target_public_key: String, _roles: Vec<String>, _previous_event_id: Option<String>) -> Result<(), UserRepositoryError> {
+        return Err(UserRepositoryError::FailedToChangeUserRole)
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum UserRepositoryError {
     UserNotFound,

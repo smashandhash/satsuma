@@ -5,18 +5,19 @@ use crate::infrastructure::{
         UserRepositoryError,
     },
 };
+use std::sync::Arc;
 
 pub trait ModifyParticipantRolesUseCase {
     fn execute(&self, group_id: String, target_public_key: String, roles: Vec<String>, previous_event_id: Option<String>) -> Result<(), ModifyParticipantRolesUseCaseError>;
 }
 
 pub struct ModifyParticipantRolesUseCaseImplementation<S: LocalStorage, R: UserRepository> {
-    pub storage: S,
-    pub repository: R,
+    pub storage: Arc<S>,
+    pub repository: Arc<R>,
 }
 
 impl<S: LocalStorage, R: UserRepository> ModifyParticipantRolesUseCaseImplementation<S, R> {
-    pub fn new(storage: S, repository: R) -> Self {
+    pub fn new(storage: Arc<S>, repository: Arc<R>) -> Self {
         Self {
             storage,
             repository,

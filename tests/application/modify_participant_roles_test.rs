@@ -12,6 +12,7 @@ mod tests {
         local_storage_stub::LocalStorageStub,
         user_repository_stub::UserRepositoryStub,
     };
+    use std::sync::Arc;
 
     #[test]
     fn success_modify_participant_role() {
@@ -19,8 +20,8 @@ mod tests {
         let target_public_key = "target_public_key".to_string();
         let previous_event_id = "previous_event_id".to_string();
         let roles = vec!["Admin".to_string(), "Supervisor".to_string()];
-        let local_storage = LocalStorageStub::new(None);
-        let repository = UserRepositoryStub::new(None);
+        let local_storage = Arc::new(LocalStorageStub::new(None));
+        let repository = Arc::new(UserRepositoryStub::new(None));
         let sut = ModifyParticipantRolesUseCaseImplementation::new(local_storage, repository);
 
         let result = sut.execute(group_id, target_public_key, roles, Some(previous_event_id));
@@ -34,8 +35,8 @@ mod tests {
         let target_public_key = "target_public_key".to_string();
         let previous_event_id = "previous_event_id".to_string();
         let roles = vec!["Admin".to_string(), "Supervisor".to_string()];
-        let local_storage = LocalStorageStub::new(None);
-        let repository = UserRepositoryStub::new(None);
+        let local_storage = Arc::new(LocalStorageStub::new(None));
+        let repository = Arc::new(UserRepositoryStub::new(None));
         let sut = ModifyParticipantRolesUseCaseImplementation::new(local_storage, repository);
 
         let result = sut.execute(group_id, target_public_key, roles, Some(previous_event_id));
@@ -50,8 +51,8 @@ mod tests {
         let target_public_key = "".to_string();
         let previous_event_id = "previous_event_id".to_string();
         let roles = vec!["Admin".to_string(), "Supervisor".to_string()];
-        let local_storage = LocalStorageStub::new(None);
-        let repository = UserRepositoryStub::new(None);
+        let local_storage = Arc::new(LocalStorageStub::new(None));
+        let repository = Arc::new(UserRepositoryStub::new(None));
         let sut = ModifyParticipantRolesUseCaseImplementation::new(local_storage, repository);
 
         let result = sut.execute(group_id, target_public_key, roles, Some(previous_event_id));
@@ -66,8 +67,8 @@ mod tests {
         let target_public_key = "target_public_key".to_string();
         let previous_event_id = "previous_event_id".to_string();
         let roles = Vec::new();
-        let local_storage = LocalStorageStub::new(None);
-        let repository = UserRepositoryStub::new(None);
+        let local_storage = Arc::new(LocalStorageStub::new(None));
+        let repository = Arc::new(UserRepositoryStub::new(None));
         let sut = ModifyParticipantRolesUseCaseImplementation::new(local_storage, repository);
 
         let result = sut.execute(group_id, target_public_key, roles, Some(previous_event_id));
@@ -82,8 +83,8 @@ mod tests {
         let target_public_key = "target_public_key".to_string();
         let previous_event_id = "previous_event_id".to_string();
         let roles = vec!["Admin".to_string(), "".to_string()];
-        let local_storage = LocalStorageStub::new(None);
-        let repository = UserRepositoryStub::new(None);
+        let local_storage = Arc::new(LocalStorageStub::new(None));
+        let repository = Arc::new(UserRepositoryStub::new(None));
         let sut = ModifyParticipantRolesUseCaseImplementation::new(local_storage, repository);
 
         let result = sut.execute(group_id, target_public_key, roles, Some(previous_event_id));
@@ -98,8 +99,8 @@ mod tests {
         let target_public_key = "target_public_key".to_string();
         let previous_event_id = "previous_event_id".to_string();
         let roles = vec!["Admin".to_string(), "Supervisor".to_string()];
-        let local_storage = LocalStorageStub::new(Some("Error Local Storage".to_string()));
-        let repository = UserRepositoryStub::new(None);
+        let local_storage = Arc::new(LocalStorageStub::new(Some("Error Local Storage".to_string())));
+        let repository = Arc::new(UserRepositoryStub::new(None));
         let sut = ModifyParticipantRolesUseCaseImplementation::new(local_storage, repository);
 
         let result = sut.execute(group_id, target_public_key, roles, Some(previous_event_id));
@@ -114,9 +115,9 @@ mod tests {
         let target_public_key = "target_public_key".to_string();
         let previous_event_id = "previous_event_id".to_string();
         let roles = vec!["Admin".to_string(), "Supervisor".to_string()];
-        let local_storage = LocalStorageStub::new(None);
+        let local_storage = Arc::new(LocalStorageStub::new(None));
         let repository_error = UserRepositoryError::FailedToChangeUserRole;
-        let repository = UserRepositoryStub::new(Some(repository_error.clone()));
+        let repository = Arc::new(UserRepositoryStub::new(Some(repository_error.clone())));
         let sut = ModifyParticipantRolesUseCaseImplementation::new(local_storage, repository);
 
         let result = sut.execute(group_id, target_public_key, roles, Some(previous_event_id));
