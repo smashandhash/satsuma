@@ -10,3 +10,4 @@ mod search_chat_test;
 mod get_profile_test;
 mod get_chat_user_list_test;
 mod modify_participant_roles_test;
+mod create_general_chat_test;
