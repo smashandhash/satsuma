@@ -1,8 +1,24 @@
 #[cfg(test)]
 mod tests {
+    use satsuma::domain::chat_container::{
+        ChatContainer,
+        ChatContainerContext,
+        ChatContainerGroupType,
+    };
+
     #[test]
     fn successfully_create_a_general_chat() {
-        let sender_public_key = "sender_public_key".to_string();
-        let member_public_keys = vec!["first_member_key".to_string(), "second_member_key".to_string()];
+        let creator_public_key = "sender_public_key".to_string();
+        let admins_public_key = vec![creator_public_key.clone()];
+        let member_public_keys = vec![creator_public_key.clone(), "first_member_key".to_string(), "second_member_key".to_string()];
+        let chat_container = ChatContainer::new(
+            "id".to_string(),
+            ChatContainerContext::Group {
+                group_type: ChatContainerGroupType::Channel,
+                creator_public_key: creator_public_key,
+                admins_public_key: admins_public_key
+            },
+            member_public_keys.clone(),
+            );
     }
 }
