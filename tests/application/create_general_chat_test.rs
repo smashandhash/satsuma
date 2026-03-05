@@ -5,6 +5,8 @@ mod tests {
         ChatContainerContext,
         ChatContainerGroupType,
     };
+    use crate::helper::chat_container_repository_stub::ChatContainerRepositoryStub;
+    use std::sync::Arc;
 
     #[test]
     fn successfully_create_a_general_chat() {
@@ -19,6 +21,11 @@ mod tests {
                 admins_public_key: admins_public_key
             },
             member_public_keys.clone(),
-            );
+        );
+        let repository = Arc::new(ChatContainerRepositoryStub::new(
+                None,
+                Some(chat_container.clone())
+        ));
+        let sut = CreateGroupChatUseCaseImplementation::new(repository);
     }
 }
